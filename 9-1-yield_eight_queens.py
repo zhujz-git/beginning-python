@@ -20,7 +20,7 @@ def queens(num, state):
     else:
         for pos in range(num):
             if not conflict(state, pos):
-                for result in queens(num, state + (pos,)):
+                for result in queens(num, state + (pos, )):
                     yield (pos, ) + result
 
 
