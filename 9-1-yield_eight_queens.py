@@ -25,4 +25,3 @@ def queens(num, state):
 
 
 print(list(queens(8, ())))
-
