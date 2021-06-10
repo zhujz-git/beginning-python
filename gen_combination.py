@@ -152,8 +152,8 @@ def read_goods_info(filepath):
 
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
-goods_data = read_goods_info('.\\' + filepath + '\\goodsinfo.xlsx')
+goods_data = read_goods_info('~\\' + filepath + '\\goodsinfo.xlsx')
 
-comb_data = read_comb_list('.\\' + filepath + '\\combination_list.dt')
-write_data_to_excel('.\\' + filepath + '\\comb_data_input.xlsx', comb_data,
+comb_data = read_comb_list('~\\' + filepath + '\\combination_list.dt')
+write_data_to_excel('~\\' + filepath + '\\comb_data_input.xlsx', comb_data,
                     goods_data)

@@ -55,7 +55,7 @@ def check_comb_info(filepath, comb_id_name_list):
 
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
-comb_info = lead_comb_info('.\\' + filepath + '\\combination_info.xlsx')
+comb_info = lead_comb_info('~\\' + filepath + '\\combination_info.xlsx')
 
-check_comb_info('.\\' + filepath + '\\combination_weight.xlsx',
+check_comb_info('~\\' + filepath + '\\combination_weight.xlsx',
                             comb_info)
