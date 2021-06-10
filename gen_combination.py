@@ -150,7 +150,7 @@ def read_goods_info(filepath):
 
 
 
-# 实用命令行指定组合文件路径
+# 使用命令行指定组合文件路径
 filepath = sys.argv[1]
 goods_data = read_goods_info('.\\' + filepath + '\\goodsinfo.xlsx')
 
