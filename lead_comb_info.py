@@ -14,8 +14,11 @@ def lead_comb_info(filepath):
     index_comb_name = first_row.index('组合商品名称')
     comb_name_list = sheet1.col_values(index_comb_name)
     # 去掉空行
-    comb_info_list = [(comb_id_list[i], comb_name_list[i]) for i in range(len(comb_id_list)) if comb_name_list[i] != '']
+    comb_info_list = [(comb_id_list[i], comb_name_list[i])
+                      for i in range(len(comb_id_list))
+                      if comb_name_list[i] != '']
     return comb_info_list
+
 
 def check_comb_info(filepath, comb_id_name_list):
     try:
@@ -27,17 +30,16 @@ def check_comb_info(filepath, comb_id_name_list):
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
-        ncol = info.last_cell.column
 
         range_val = load_sheet.range(
             (1, 1),  # 获取 第一行 第一列
             (nrow, 2)  # 获取 第 nrow 行 第 ncol 列
-            ).value
-        comb_data = {value[0]:value[1] for value in range_val}
+        ).value
+        comb_data = {value[0]: value[1] for value in range_val}
 
-        row_num = nrow+2
+        row_num = nrow + 2
         for comb_val in comb_id_name_list:
-            if comb_data.get(comb_val[0]) == None:
+            if comb_data.get(comb_val[0]) is None:
                 load_sheet['{}{}'.format('A', row_num)].value = comb_val[0]
                 load_sheet['{}{}'.format('B', row_num)].value = comb_val[1]
                 row_num += 1
@@ -53,9 +55,9 @@ def check_comb_info(filepath, comb_id_name_list):
         return
     app.quit()
 
+
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
 comb_info = lead_comb_info('~\\' + filepath + '\\combination_info.xlsx')
 
-check_comb_info('~\\' + filepath + '\\combination_weight.xlsx',
-                            comb_info)
+check_comb_info('~\\' + filepath + '\\combination_weight.xlsx', comb_info)
