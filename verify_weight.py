@@ -1,14 +1,15 @@
 import xlrd
 import xlwings
+import get_user_filepath
 
 
-def read_product():
+def read_product(filepath):
     """
         读取组合商品编码和重量，返回一个字典
     """
     # 打开excel文件
     try:
-        workbook = xlrd.open_workbook("组合商品编码及重量.xlsx")
+        workbook = xlrd.open_workbook(filepath)
     except PermissionError:
         print('请先关闭文件')
         exit
@@ -27,12 +28,12 @@ def read_product():
     return product_codes
 
 
-def read_orders():
+def read_orders(filepath):
     """
         读取订单数据，获取快递单号和对应的商品编码
     """
     # 打开excel文件
-    workbook = xlrd.open_workbook("4月份订单列表.xlsx")
+    workbook = xlrd.open_workbook(filepath)
 
     # 获取工作表
     sheet1 = workbook.sheet_by_index(0)
@@ -43,7 +44,8 @@ def read_orders():
         product_count_id = first_row.index('数量')
         product_code_id = first_row.index('商品编码')
     except ValueError:
-        print(ValueError)
+        print(ValueError, first_row)
+        return
 
     order_list = {}
     for i in range(1, sheet1.nrows):
@@ -58,6 +60,7 @@ def read_orders():
         try:
             product_count = int(row[product_count_id])
         except ValueError:
+            print(ValueError, row[product_count_id])
             continue
 
         # 创建一个商品元组，包含商品数量 商品编码 订单备注
@@ -73,17 +76,11 @@ def read_orders():
     return order_list
 
 
-def verify_weight():
-    """
-        核对重量
-    """
-    product_codes = read_product()
-
-    order_list = read_orders()
+def verify_weight(filepath, product_codes, order_list):
 
     # 打开excel文件
     app = xlwings.App(add_book=False)
-    workbook = app.books.open('居家族4月 - 手工核对.xlsx')
+    workbook = app.books.open(filepath)
 
     load_sheet = workbook.sheets[0]
 
@@ -162,5 +159,9 @@ def verify_weight():
     # 退出程序
     app.quit()
 
-
-verify_weight()
+#month = sys.argv[2]
+filepath = get_user_filepath.get_file_path()
+product_codes = read_product(filepath + '\\combination_weight.xlsx')
+order_list = read_orders(filepath + '\\order_list.xlsx')
+verify_weight(filepath  + '\\tracking_number.xls',
+              product_codes, order_list)
