@@ -21,11 +21,13 @@ def load_user_info(filepath):
 
     user_info_map = {
         user_name_id_list[i]:
-        '{}/{}/{}'.format(user_phone_1_list[i], user_phone_2_list[i], user_phone_3_list[i])
+        '{}/{}/{}'.format(user_phone_1_list[i], user_phone_2_list[i],
+                          user_phone_3_list[i])
         for i in range(1, len(user_name_id_list))
     }
 
     return user_info_map
+
 
 def load_user_phone(filepath, user_info_map):
     try:
@@ -38,17 +40,11 @@ def load_user_phone(filepath, user_info_map):
         info = load_sheet.used_range
         nrow = info.last_cell.row
 
-        range_val = load_sheet.range(
-            (2, 3),  # 获取 第一行 第一列
-            (nrow, 3)  # 获取 第 nrow 行 第 ncol 列
-        ).value
-        
-        for i in range(2, nrow+1):
+        for i in range(2, nrow + 1):
             user_name = load_sheet.range(i, 3).value
             print(user_info_map.get(user_name, ''))
-            load_sheet['{}{}'.format(
-                'R', i)].value = user_info_map.get(user_name, '')
-
+            load_sheet['{}{}'.format('R', i)].value = user_info_map.get(
+                user_name, '')
 
         # 保存文件
         workbook.save()
