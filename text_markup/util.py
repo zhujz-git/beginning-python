@@ -4,9 +4,12 @@
     空行忽略，文件最后返回空行，表示文件结束
 """
 
+
 def lines(file):
-    for line in file: yield line
+    for line in file:
+        yield line
     yield '\n'
+
 
 def blocks(file):
     block = []
@@ -15,4 +18,4 @@ def blocks(file):
             block.append(line)
         elif block:
             yield ''.join(block).strip()
-        block = []
+            block = []
