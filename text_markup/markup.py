@@ -56,3 +56,4 @@ handler = HTMLRenderer()
 parser = BasicTextParser(handler)
 
 parser.parse(sys.stdin)
+# Get-Content test_input.txt | python .\markup.py > test_output.html
