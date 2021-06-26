@@ -5,6 +5,7 @@ import xlrd
 import get_user_filepath
 import os
 
+
 def read_comb_list(filepath):
     # 组合以start_combation 并指定组合尺码数量和总行数
     start_comb_pat = re.compile(r'\[start_combation\]:(\d+)%(\d+)')
@@ -101,6 +102,7 @@ def write_data_to_excel(filepath, comb_data, goods_data):
         return
     app.quit()
 
+
 def read_goods_info(filepath):
     workbook = xlrd.open_workbook(filepath)
     sheet1 = workbook.sheet_by_index(0)
@@ -151,12 +153,13 @@ def read_goods_info(filepath):
     return goods_data
 
 
-
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
-goods_data = read_goods_info(get_user_filepath.get_file_path() +
-                             '\\goodsinfo.xlsx')
+goods_data = read_goods_info(
+    os.path.expanduser(get_user_filepath.get_file_path() + '\\goodsinfo.xls'))
 
-comb_data = read_comb_list(os.path.expanduser('~\\' + filepath + '\\combination_list.dt'))
-write_data_to_excel(os.path.expanduser('~\\' + filepath + '\\comb_data_input.xlsx'), comb_data,
-                    goods_data)
+comb_data = read_comb_list(
+    os.path.expanduser('.\\' + filepath + '\\combination_list.dt'))
+write_data_to_excel(
+    os.path.expanduser('.\\' + filepath + '\\comb_data_input.xlsx'), comb_data,
+    goods_data)

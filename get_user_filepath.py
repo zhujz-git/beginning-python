@@ -12,4 +12,4 @@ def get_last_month():
 def get_file_path():
     # 使用命令行指定文件夹名称
     filepath = sys.argv[1]
-    return os.path.expanduser('~\\' + filepath + get_last_month())
+    return os.path.expanduser('.\\' + filepath)
