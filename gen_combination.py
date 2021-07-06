@@ -5,7 +5,9 @@ import xlrd
 import get_user_filepath
 import os
 
-
+'''
+    根据设置好的.dt文件，生成组合商品列表，用于导入至ERP
+'''
 def read_comb_list(filepath):
     # 组合以start_combation 并指定组合尺码数量和总行数
     start_comb_pat = re.compile(r'\[start_combation\]:(\d+)%(\d+)')
@@ -68,6 +70,18 @@ def write_data_to_excel(filepath, comb_data, goods_data):
         str_classify = comb_data['classify']
         str_sellingprice = comb_data['sellingprice']
         comb_list = comb_data['comblist']
+
+        # 获取 行与列
+        info = load_sheet.used_range
+        nrow = info.last_cell.row
+        ncol = info.last_cell.column
+
+        # 删除已有的数据 （第一行不删）
+        load_sheet.range(
+            (2, 1),  # 获取 第2行 第一列
+            (nrow, ncol)  # 获取 第 nrow 行 第 ncol 列
+        ).clear()
+
         line_num = 2
         for comb in comb_list:
             # <必填>组合商品编码
@@ -156,7 +170,7 @@ def read_goods_info(filepath):
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
 goods_data = read_goods_info(
-    os.path.expanduser(get_user_filepath.get_file_path() + '\\goodsinfo.xls'))
+    os.path.expanduser(get_user_filepath.get_file_path() + '\\goodsinfo.xlsx'))
 
 comb_data = read_comb_list(
     os.path.expanduser('.\\' + filepath + '\\combination_list.dt'))

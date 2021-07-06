@@ -2,7 +2,9 @@ import sys
 import xlrd
 import xlwings
 
-
+'''
+    将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
+'''
 def lead_comb_info(filepath):
     workbook = xlrd.open_workbook(filepath)
     sheet1 = workbook.sheet_by_index(0)
