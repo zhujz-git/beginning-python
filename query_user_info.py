@@ -34,16 +34,16 @@ def load_user_phone(filepath, user_info_map):
         app = xlwings.App(add_book=False)
         workbook = app.books.open(filepath)
 
-        load_sheet = workbook.sheets['娄桥街道']
+        load_sheet = workbook.sheets[0]
 
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
 
         for i in range(2, nrow + 1):
-            user_name = load_sheet.range(i, 3).value
+            user_name = load_sheet.range(i, 4).value
             print(user_info_map.get(user_name, ''))
-            load_sheet['{}{}'.format('R', i)].value = user_info_map.get(
+            load_sheet['{}{}'.format('I', i)].value = user_info_map.get(
                 user_name, '')
 
         # 保存文件
@@ -60,4 +60,4 @@ def load_user_phone(filepath, user_info_map):
 
 user_info_map = load_user_info('excelExport.xlsx')
 
-load_user_phone('核对-瓯海(排序)(1) - 第二批.xlsx', user_info_map)
+load_user_phone('20210705 超期未检.xlsx', user_info_map)
