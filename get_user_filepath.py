@@ -8,6 +8,9 @@ def get_last_month():
     today = today.replace(month=today.month - 1)
     return '\\' + datetime.datetime.strftime(today, '%B').lower()
 
+def get_file_path_addmonth():
+    return get_file_path() + get_last_month()
+
 
 def get_file_path():
     # 使用命令行指定文件夹名称

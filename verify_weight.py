@@ -160,8 +160,12 @@ def verify_weight(filepath, product_codes, order_list):
     app.quit()
 
 #month = sys.argv[2]
-filepath = get_user_filepath.get_file_path()
+#获取月份文件夹
+filepath = get_user_filepath.get_file_path_addmonth()
+#读取组合商品重量
 product_codes = read_product(filepath + '\\combination_weight.xlsx')
+#读取订单数据
 order_list = read_orders(filepath + '\\order_list.xlsx')
+#核对
 verify_weight(filepath  + '\\tracking_number.xls',
               product_codes, order_list)

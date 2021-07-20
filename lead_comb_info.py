@@ -1,6 +1,8 @@
 import sys
 import xlrd
 import xlwings
+import get_user_filepath
+
 
 '''
     将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
@@ -15,9 +17,9 @@ def lead_comb_info(filepath):
     # 组合商品名称
     index_comb_name = first_row.index('组合商品名称')
     comb_name_list = sheet1.col_values(index_comb_name)
-    # 去掉空行
+    # 去掉空行, 第一行不用
     comb_info_list = [(comb_id_list[i], comb_name_list[i])
-                      for i in range(len(comb_id_list))
+                      for i in range(1, len(comb_id_list))
                       if comb_name_list[i] != '']
     return comb_info_list
 
@@ -34,12 +36,12 @@ def check_comb_info(filepath, comb_id_name_list):
         nrow = info.last_cell.row
 
         range_val = load_sheet.range(
-            (1, 1),  # 获取 第一行 第一列
+            (2, 1),  # 获取 第2行 第1列
             (nrow, 2)  # 获取 第 nrow 行 第 ncol 列
         ).value
         comb_data = {value[0]: value[1] for value in range_val}
 
-        row_num = nrow + 2
+        row_num = nrow + 1
         for comb_val in comb_id_name_list:
             if comb_data.get(comb_val[0]) is None:
                 load_sheet['{}{}'.format('A', row_num)].value = comb_val[0]
@@ -58,8 +60,9 @@ def check_comb_info(filepath, comb_id_name_list):
     app.quit()
 
 
-# 使用命令行指定组合文件路径
-filepath = sys.argv[1]
-comb_info = lead_comb_info('~\\' + filepath + '\\combination_info.xlsx')
+filepath = get_user_filepath.get_file_path_addmonth()
 
-check_comb_info('~\\' + filepath + '\\combination_weight.xlsx', comb_info)
+comb_info = lead_comb_info(filepath + '\\combination_info.xlsx')
+
+check_comb_info(filepath + '\\combination_weight.xlsx',
+                               comb_info)
