@@ -78,3 +78,12 @@ class ParagraphRule(Rule):
 
     def condition(self, block):
         return True
+
+class TableRule(Rule):
+    """
+    表格以'|'标示
+    """
+    type = 'table'
+
+    def condition(self, block):
+        return '\n' not in block and len(block) <= 70 and not block[-1] == ':'

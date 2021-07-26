@@ -3,7 +3,6 @@ import xlrd
 import xlwings
 import get_user_filepath
 
-
 '''
     将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
 '''
