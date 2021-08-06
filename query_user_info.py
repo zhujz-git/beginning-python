@@ -62,7 +62,7 @@ def load_user_phone(filepath, user_info_map):
         pat = r'浙江省|温州市|瓯海区|娄桥街道'
         #导入片区信息
         region_list = list(query_addr_region.load_addr_region('region_info.xlsx'))
-        
+
         for i in range(2, nrow + 1):
             user_name = load_sheet.range(i, 1).value
 
@@ -92,5 +92,5 @@ def load_user_phone(filepath, user_info_map):
     app.quit()
 
 if __name__ == '__main__':
-    user_info_map = load_user_info('excelExport20210723.xlsx')
-    load_user_phone('7.23未分类评价单位整理.xls', user_info_map)
+    user_info_map = load_user_info('excelExport20210728.xlsx')
+    load_user_phone('停用设备注销清单7-28.xlsx', user_info_map)
