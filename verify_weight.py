@@ -167,5 +167,4 @@ product_codes = read_product(filepath + '\\combination_weight.xlsx')
 #读取订单数据
 order_list = read_orders(filepath + '\\order_list.xlsx')
 #核对
-verify_weight(filepath  + '\\tracking_number.xls',
-              product_codes, order_list)
+verify_weight(filepath + '\\居家族8月核对.xls', product_codes, order_list)
