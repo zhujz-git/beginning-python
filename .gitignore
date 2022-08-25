@@ -4,3 +4,12 @@
 *.xls
 __pycache__
 *.html
+*.dt
+*.pdf
+*.code-workspace
+*.wav
+*.jpg
+*.json
+*.png
+*.txt
+*.xml
