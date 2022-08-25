@@ -62,8 +62,7 @@ def check_comb_info(filepath, comb_id_name_list):
 filepath = get_user_filepath.get_file_path_addmonth()
 
 comb_info = lead_comb_info(filepath +
-                           '\\combination_info1.xlsx') + lead_comb_info(
-                               filepath + '\\combination_info2.xlsx')
+                           '\\combination_info1.xlsx') 
 
 check_comb_info(filepath + '\\combination_weight.xlsx',
                                comb_info)

@@ -5,7 +5,10 @@ import os
 
 def get_last_month():
     today = datetime.datetime.today()
-    today = today.replace(month=today.month - 1)
+    try:
+        today = today.replace(month=today.month - 1)
+    except ValueError:
+        today = today.replace(month=12)
     return '\\' + datetime.datetime.strftime(today, '%B').lower()
 
 def get_file_path_addmonth():
