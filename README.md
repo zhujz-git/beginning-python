@@ -17,8 +17,11 @@ Python 学习知识链接：
 [numpy官网](https://www.numpy.org.cn/)
 
 ## reportlab学习资料
-+https://www.cnblogs.com/hujq1029/p/7767980.html
+https://www.cnblogs.com/hujq1029/p/7767980.html
 
-+https://docs.reportlab.com/reportlab/userguide/ch11_graphics/
+https://docs.reportlab.com/reportlab/userguide/ch11_graphics/
 
-+https://blog.csdn.net/xiaomage0511/article/details/124334755
+https://blog.csdn.net/xiaomage0511/article/details/124334755
+
+rml
+https://docs.reportlab.com/rmlfornewbies/
