@@ -1,6 +1,5 @@
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics, ttfonts
-from reportlab.platypus import Image
 import json
 
 
@@ -24,23 +23,27 @@ def setpdf(mlist):
     cav.setDash(2, 1)
     i = 0
     for mdict in mlist:
-        cav.line(x_l, page_y - 30, x_r, page_y - 30)
+        #7项一页
+        offset = i % 7
+        #虚线
+        cav.line(x_l, page_y - 30 - offset*100, x_r, page_y - 30 - offset*100)
         cav.setFont(psfontname='simfang', size=10, leading=1)
-        cav.drawString(55, 755, '1')
-        imgulr = 'p480747492.webp.jpg'
-        image = Image(imgulr)
-        cav.drawImage(imgulr, 65, 685, 54, 80, 'auto')
-        textobj = cav.beginText(130, 755, direction=(15, 300))
-        textobj.setFont(psfontname='simfang', size=15, leading=20)
-        textobj.textLines(
-            '肖申克的救赎  / The Shawshank Redemption \n / 月黑高飞(港) / 刺激1995(台) ')
-        textobj.setFont(psfontname='simfang', size=10, leading=15)
-        textobj.textLine(
-            '导演: 弗兰克·德拉邦特 Frank Darabont   主演: 蒂姆·罗宾斯 Tim Robbins /...')
-        textobj.textLine('2680678人评价')
-        textobj.textLine('希望让人自由。')
+        #序号+电影图片
+        cav.drawString(x_l, page_y - 45 - offset*100, mdict['em'])
+        imgulr = mdict['image_addr']
+        cav.drawImage(imgulr, x_l + 15, page_y - 45 - img_height + 10 - offset*100, img_width, img_height, 'auto')
+        #电影介绍
+        textobj = cav.beginText(130, page_y - 45 - offset*100, (80, 400))
+        textobj.setFont(psfontname='simfang', size=12, leading=15)
+        textobj.textLines(mdict['title'])
+        textobj.textLines(mdict['other'])
+        textobj.setFont(psfontname='simfang', size=10, leading=12)        
+        textobj.textLines(mdict['review'])
+        textobj.textLine(mdict['rating_num'])
+        textobj.textLine(mdict['quote'])
         cav.drawText(textobj)
-        cav.showPage()
+        i += 1
+        if i % 7 == 0 and i > 0: cav.showPage()
     cav.save()
 
 
@@ -49,4 +52,4 @@ def lead_json():
         return json.load(file)
 
 
-if __name__ == '__main__': setpdf(lead_json()[:2])
+if __name__ == '__main__': setpdf(lead_json())

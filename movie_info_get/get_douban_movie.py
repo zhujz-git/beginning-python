@@ -40,7 +40,7 @@ def bs4_parse_html(mlist, htxt):
 
             bd = movie.find('div', 'bd')
             #电影简介
-            movie_dict['review'] = ''.join(bd.p.stripped_strings)
+            movie_dict['review'] = '\n'.join(bd.p.stripped_strings)
             #评价-豆瓣评分
             movie_dict['rating_num'] = bd.find('span', 'rating_num').string
             #评语
