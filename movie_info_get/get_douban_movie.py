@@ -2,7 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import re
-
+import reportlab_setpdf
 
 def get_html_content(url):
     try:
@@ -34,10 +34,10 @@ def bs4_parse_html(mlist, htxt):
             #电影详情地址链接
             movie_dict['href'] = movie.a['href']
             #获取电影名称和别名
-            title = ''.join(
+            movie_dict['title'] = ''.join(
                 [i.string for i in movie.find_all('span', 'title')])
-            title += movie.find('span', 'other').string
-            movie_dict['title'] = title
+            movie_dict['other'] = movie.find('span', 'other').string
+
             bd = movie.find('div', 'bd')
             #电影简介
             movie_dict['review'] = ''.join(bd.p.stripped_strings)
@@ -63,6 +63,7 @@ def get_movie_list():
     with open('movie_data.json', 'w') as file:
         json.dump(mlist, file, indent=2)
         print('success dump file :movie_data.json')
+    return mlist
 
 
 get_movie_list()
