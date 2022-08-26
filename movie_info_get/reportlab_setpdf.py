@@ -1,6 +1,7 @@
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics, ttfonts
 import json
+from reportlab.lib import colors
 
 
 def setpdf(mlist):
@@ -15,6 +16,7 @@ def setpdf(mlist):
     x_l = 50
     x_r = 545
     page_width = 595.27
+    cav.setFillColor(colors.blue)
     cav.drawString(x_l, page_y, '豆瓣电影 Top 250')
     #图像宽 高
     img_width = 54
@@ -26,17 +28,21 @@ def setpdf(mlist):
         #7项一页
         offset = i % 7
         #虚线
+        cav.setFillColor(colors.black)
         cav.line(x_l, page_y - 30 - offset*100, x_r, page_y - 30 - offset*100)
         cav.setFont(psfontname='simfang', size=10, leading=1)
         #序号+电影图片
+        cav.setFillColor(colors.darkgray)
         cav.drawString(x_l, page_y - 45 - offset*100, mdict['em'])
         imgulr = mdict['image_addr']
         cav.drawImage(imgulr, x_l + 15, page_y - 45 - img_height + 10 - offset*100, img_width, img_height, 'auto')
         #电影介绍
         textobj = cav.beginText(130, page_y - 45 - offset*100, (80, 400))
         textobj.setFont(psfontname='simfang', size=12, leading=15)
+        textobj.setFillColor(colors.ReportLabBlue)
         textobj.textLines(mdict['title'])
         textobj.textLines(mdict['other'])
+        textobj.setFillColor(colors.black)
         textobj.setFont(psfontname='simfang', size=10, leading=12)        
         textobj.textLines(mdict['review'])
         textobj.textLine(mdict['rating_num'])
@@ -52,4 +58,4 @@ def lead_json():
         return json.load(file)
 
 
-if __name__ == '__main__': setpdf(lead_json())
+if __name__ == '__main__': setpdf(lead_json()[:20])
