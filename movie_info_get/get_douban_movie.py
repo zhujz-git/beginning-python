@@ -1,8 +1,8 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-import re
 import reportlab_setpdf
+
 
 def get_html_content(url):
     try:
@@ -22,28 +22,28 @@ def get_html_content(url):
 def bs4_parse_html(mlist, htxt):
     try:
         soup = BeautifulSoup(htxt, 'html.parser')
-        #找出网页中的所有电影<ol class="grid_view">中的所有<div class="item">
+        # 找出网页中的所有电影<ol class="grid_view">中的所有<div class="item">
         movies = soup.find('ol', 'grid_view').find_all('div', 'item')
         for movie in movies:
             movie_dict = {}
             movie_dict['em'] = movie.em.string
-            #电影名称
+            # 电影名称
             movie_dict['name'] = movie.a.img['alt']
-            #海报地址，后续下载
+            # 海报地址，后续下载
             movie_dict['image_addr'] = movie.a.img['src']
-            #电影详情地址链接
+            # 电影详情地址链接
             movie_dict['href'] = movie.a['href']
-            #获取电影名称和别名
+            # 获取电影名称和别名
             movie_dict['title'] = ''.join(
                 [i.string for i in movie.find_all('span', 'title')])
             movie_dict['other'] = movie.find('span', 'other').string
 
             bd = movie.find('div', 'bd')
-            #电影简介
+            # 电影简介
             movie_dict['review'] = '\n'.join(bd.p.stripped_strings)
-            #评价-豆瓣评分
+            # 评价-豆瓣评分
             movie_dict['rating_num'] = bd.find('span', 'rating_num').string
-            #评语
+            # 评语
             try:
                 movie_dict['quote'] = bd.find('span', 'inq').string
             except AttributeError:
