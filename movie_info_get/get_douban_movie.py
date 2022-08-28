@@ -92,8 +92,6 @@ def get_movie_info(tinfo):
     return info
 
 # 获取演职员列表
-
-
 def get_movie_celebrities(celebrities):
     cd = {}
     cd['title'] = celebrities.i.string
