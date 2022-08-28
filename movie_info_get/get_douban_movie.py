@@ -65,5 +65,8 @@ def get_movie_list():
         print('success dump file :movie_data.json')
     return mlist
 
+def get_movie_info(mdict):
+    
+    pass
 
 get_movie_list()
