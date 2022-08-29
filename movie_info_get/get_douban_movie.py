@@ -98,7 +98,7 @@ def bs4_parse_movie_info(movie_info):
     related_info = cont.find('div', 'related-info')
     minfo['related-info'] = ''.join(
         related_info.h2.stripped_strings) + '\n' + '\n'.join(
-            related_info.find('span', property="v:summary").string)
+            related_info.find('span', property="v:summary").stripped_strings)
     # 演职员表
     minfo['celebrities'] = get_movie_celebrities(
         cont.find('div', id='celebrities'))
@@ -168,8 +168,10 @@ def get_all_pic(url):
     mdict['title'] = cont.h1.string
     # 获取图片数量
     pat = re.compile(r'(\d+)')
-    pic_num = cont.find('span', 'count').string
-    npic = int(pat.search(pic_num).group(0))
+    npic = 0
+    if cont.find('span', 'count'):
+        pic_num = cont.find('span', 'count').string
+        npic = int(pat.search(pic_num).group(0))
 
     # 遍历所有页面里的图片，获取地址 30张 一页
     pic_id_list = []
@@ -254,4 +256,4 @@ def get_movie_list_info(mlist):
 if __name__ == '__main__':
     mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
     m = bs4_parse_movie_info(mlist[0])
-    
+    reportlab_setpdf.dump_data('./json/{}.json'.format(m['reviewed']), m)

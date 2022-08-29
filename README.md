@@ -8,7 +8,7 @@ Python 学习知识链接：
 [request官网](https://requests.readthedocs.io/en/latest/)
 
 ## beautifulesoup
-[beautifulesoup官网](https://www.crummy.com/software/BeautifulSoup/)
+[beautifulesoup官网]https://www.crummy.com/software/BeautifulSoup/
 
 ## scrapy
 [scrapy官网](https://scrapy.org/)
