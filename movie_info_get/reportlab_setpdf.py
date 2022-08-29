@@ -85,10 +85,14 @@ def setpdf(mlist):
     cav.save()
 
 
-def lead_json():
-    with open('movie_data.json', 'r') as file:
+def lead_json(file_name):
+    with open(file_name, 'r') as file:
         return json.load(file)
+def dump_data(file_name, json_data):
+    with open(file_name, 'w') as file:
+        json.dump(json_data, file, indent=2)
+        print('success dump file :{}'.format(file_name))
 
 
 if __name__ == '__main__':
-    setpdf(lead_json())
+    setpdf(lead_json('./json/movie_data.json'))

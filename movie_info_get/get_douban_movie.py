@@ -2,21 +2,43 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import re
+import reportlab_setpdf
+from pyquery import PyQuery as pq
 
 
+# 设置统一的请求头
+def get_html_head():
+    hd = {
+        'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+        'Cookie':
+        'douban-fav-remind=1; __utmv=30149280.4252; _ga=GA1.2.938565153.1593217773; _vwo_uuid_v2=DECC280D16CD4F57D701F745CD09857EB|2ff5b3f490ddf1585331fd3d0106680f; viewed="34993976"; gr_user_id=1eadc6be-b669-4f11-bca2-f7e16df6d8a9; __utmz=30149280.1649128375.67.9.utmcsr=m.ashvs1.cn|utmccn=(referral)|utmcmd=referral|utmcct=/2022/03/30/%e6%9c%88%e7%90%83%e9%99%a8%e8%90%bd-moonfall-2022/; ll="118174"; bid=nxozWDMC7Qg; __gads=ID=57d76279b9b07603-222d96b336d500a5:T=1657941077:RT=1657941077:S=ALNI_MbrRyQcNOZy-MxAqDaMixWDFAQsGA; Hm_lvt_16a14f3002af32bf3a75dfe352478639=1659870774; __yadk_uid=ZNrRh8jdz6CcZtyYRj8tH2ldNNozmQgE; __utma=30149280.938565153.1593217773.1661523221.1661696315.78; __utmc=30149280; __utmb=30149280.1.10.1661696315; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1661696316%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_ses.100001.4cf6=*; __utma=223695111.1464621297.1593217783.1661523222.1661696316.54; __utmb=223695111.0.10.1661696316; __utmc=223695111; __utmz=223695111.1661696316.54.45.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ap_v=0,6.0; __gpi=UID=0000047e5f873424:T=1649128399:RT=1661696386:S=ALNI_MayEAtdGdCJ8WvE4kW2l0PJKsWosA; _pk_id.100001.4cf6=902fb43b894f66e1.1593217783.54.1661697537.1661523236.',
+    }
+    return hd
+
+
+# bs4分析下
 def get_html_soup(url):
     try:
-        hd = {
-            'user-agent':
-            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
-            'Cookie':
-            'douban-fav-remind=1; __utmv=30149280.4252; _ga=GA1.2.938565153.1593217773; _vwo_uuid_v2=DECC280D16CD4F57D701F745CD09857EB|2ff5b3f490ddf1585331fd3d0106680f; viewed="34993976"; gr_user_id=1eadc6be-b669-4f11-bca2-f7e16df6d8a9; __utmz=30149280.1649128375.67.9.utmcsr=m.ashvs1.cn|utmccn=(referral)|utmcmd=referral|utmcct=/2022/03/30/%e6%9c%88%e7%90%83%e9%99%a8%e8%90%bd-moonfall-2022/; ll="118174"; bid=nxozWDMC7Qg; __gads=ID=57d76279b9b07603-222d96b336d500a5:T=1657941077:RT=1657941077:S=ALNI_MbrRyQcNOZy-MxAqDaMixWDFAQsGA; Hm_lvt_16a14f3002af32bf3a75dfe352478639=1659870774; __yadk_uid=ZNrRh8jdz6CcZtyYRj8tH2ldNNozmQgE; __utma=30149280.938565153.1593217773.1661523221.1661696315.78; __utmc=30149280; __utmb=30149280.1.10.1661696315; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1661696316%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_ses.100001.4cf6=*; __utma=223695111.1464621297.1593217783.1661523222.1661696316.54; __utmb=223695111.0.10.1661696316; __utmc=223695111; __utmz=223695111.1661696316.54.45.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ap_v=0,6.0; __gpi=UID=0000047e5f873424:T=1649128399:RT=1661696386:S=ALNI_MayEAtdGdCJ8WvE4kW2l0PJKsWosA; _pk_id.100001.4cf6=902fb43b894f66e1.1593217783.54.1661697537.1661523236.',
-        }
+        return BeautifulSoup(get_html_text(url), 'html.parser')
+    except Exception as e:
+        print(e)
+
+
+# 获取网页文本
+def get_html_text(url):
+    return get_html_response(url).text
+
+
+# 获取一个response
+def get_html_response(url):
+    try:
+        hd = get_html_head()
         r = requests.get(url, headers=hd)
         r.encoding = 'utf-8'
         r.raise_for_status()
         print('start parse :' + url)
-        return BeautifulSoup(r.text, 'html.parser')
+        return r
     except Exception as e:
         print('爬取失败', e)
 
@@ -55,23 +77,38 @@ def bs4_parse_topmlist(mlist, soup):
         print('爬取失败', e)
 
 
-def bs4_parse_movie_info(soup):
+# 获取一个电影页面的所有信息 保存到一个字典
+def bs4_parse_movie_info(movie_info):
+    soup = get_html_soup(movie_info['href'])
     cont = soup.find('div', id='content')
     minfo = {}
+    # 250名次
     minfo['top_no'] = cont.find('div', 'top250').span.string
+    # 电影名称
     minfo['reviewed'] = cont.h1.span.string
+    # 年份
     minfo['year'] = cont.h1.find('span', 'year').string
+    # 电影主图
     minfo['allpic_herf'] = cont.find('div', id='mainpic').a['href']
     minfo['mainpic'] = cont.find('div', id='mainpic').img['src']
+    # 电影的主要信息
     tinfo = cont.find('div', id='info')
     minfo['info'] = get_movie_info(tinfo)
+    # 剧情简介
     related_info = cont.find('div', 'related-info')
     minfo['related-info'] = ''.join(
         related_info.h2.stripped_strings) + '\n' + '\n'.join(
             related_info.find('span', property="v:summary").string)
+    # 演职员表
     minfo['celebrities'] = get_movie_celebrities(
         cont.find('div', id='celebrities'))
+    # 电影图片
     minfo['related-pic'] = get_related_pic(cont.find('div', 'related-pic'))
+    # 短评
+    minfo['comments'] = get_comments(cont.find('div', id='comments-section'))
+    # 影评
+    minfo['reviews'] = get_reviews(movie_info['href'])
+    return minfo
 
 
 def get_movie_info(tinfo):
@@ -120,6 +157,7 @@ def get_related_pic(related_pic):
     for s in type_s:
         url = ahref + 'photos?type=' + s
         pic_url_list.append(get_all_pic(url))
+    return pic_url_list
 
 
 # 获取一个页面的所有图片链接
@@ -142,7 +180,7 @@ def get_all_pic(url):
         for li in cont.select('li[data-id]'):
             pic_id = li['data-id']
             img_src = li.img['src']
-            '''打开每个网页太忙了。改进下。先放缩略图，要大图的后续改进
+            '''打开每个网页太慢了。改进下。先放缩略图，要大图的后续改进
             soup = get_html_soup(pic_href)
             cont = soup.find('div', id='content')
             img_src = cont.img['src']
@@ -150,6 +188,48 @@ def get_all_pic(url):
             pic_id_list.append((pic_id, img_src))
     mdict['list'] = pic_id_list
     return mdict
+
+
+# 获取所有短评
+def get_comments(comments):
+    mod = comments.find('div', 'mod-hd')
+    com_dict = {}
+    com_dict['title'] = mod.h2.i.string
+    mod = mod.find('span', 'pl')
+    href = mod.a['href']
+    pat = re.compile(r'(\d+)')
+    comments_num = int(pat.search(mod.a.string).group(0))
+    limit = 50
+    #最大只爬10页短评 不然太慢
+    com_list = []
+    n = min(int(comments_num / 200), 10)
+    for i in range(n):
+        url = href + '&start={}'.format(
+            i * limit) + '&limit={}'.format(limit) + '&sort=new_score'
+        coms = get_html_soup(url).find_all('div', 'comment-item')
+        for com in coms:
+            com_list.append((com.a['title'], com.find('span', 'short').string))
+    com_dict['list'] = com_list
+    return com_dict
+
+
+# 获取所有影评
+def get_reviews(url):
+    reviews_url = url + 'reviews'
+    rlist = []
+    #爬取10页
+    for i in range(1):
+        reviews_url = url + 'reviews?start={}'.format(i * 20)
+        reviews = get_html_soup(reviews_url).select('div[data-cid]')
+        for review in reviews:
+            cid = review['data-cid']
+            rname = review.find('a', 'name').string
+            rtime = review.find('span', 'main-meta').string
+            review_url = 'https://movie.douban.com/j/review/' + cid + '/full'
+            resp = get_html_response(review_url)
+            re_text = pq(resp.json().get('html')).text()
+            rlist.append((cid, rname, rtime, re_text))
+    return rlist
 
 
 # 活动top250的电影列表
@@ -160,9 +240,7 @@ def get_movie_list():
     for i in range(10):
         soup = get_html_soup(url + str(n * i))
         bs4_parse_topmlist(mlist, soup)
-    with open('movie_data.json', 'w') as file:
-        json.dump(mlist, file, indent=2)
-        print('success dump file :movie_data.json')
+    reportlab_setpdf.dump_data('./json/movie_data.json', mlist)
     return mlist
 
 
@@ -170,5 +248,10 @@ def get_movie_list():
 def get_movie_list_info(mlist):
     minfo_list = []
     for m in mlist:
-        soup = get_html_soup(m['href'])
-        minfo_list.append(bs4_parse_movie_info(soup))
+        minfo_list.append(bs4_parse_movie_info(m))
+
+
+if __name__ == '__main__':
+    mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+    m = bs4_parse_movie_info(mlist[0])
+    
