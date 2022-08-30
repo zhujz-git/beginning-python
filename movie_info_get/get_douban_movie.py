@@ -1,3 +1,4 @@
+from time import sleep
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -34,6 +35,8 @@ def get_html_text(url):
 def get_html_response(url):
     try:
         hd = get_html_head()
+        # 增加爬虫安全性 一秒钟访问一次
+        sleep(1)
         r = requests.get(url, headers=hd)
         r.encoding = 'utf-8'
         r.raise_for_status()
@@ -82,6 +85,7 @@ def bs4_parse_movie_info(movie_info):
     soup = get_html_soup(movie_info['href'])
     cont = soup.find('div', id='content')
     minfo = {}
+    minfo['id'] = movie_info['href'].split('/')[-2]
     # 250名次
     minfo['top_no'] = cont.find('div', 'top250').span.string
     # 电影名称
@@ -124,7 +128,10 @@ def get_movie_info(tinfo):
             item_str = ''
 
         if iOneItem:
-            item_str += ''.join(span.stripped_strings)
+            try:
+                item_str += ''.join(span.stripped_strings)
+            except AttributeError:
+                item_str += span.string
 
         span = span.next_sibling
         iOneItem = True
@@ -248,12 +255,13 @@ def get_movie_list():
 
 # 遍历电影列表中的所有电影，获取详细信息
 def get_movie_list_info(mlist):
-    minfo_list = []
-    for m in mlist:
-        minfo_list.append(bs4_parse_movie_info(m))
+    for i in mlist:
+        m = bs4_parse_movie_info(i)
+        reportlab_setpdf.dump_data('./json/{}.json'.format(m['id']), m)
 
 
 if __name__ == '__main__':
-    mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
-    m = bs4_parse_movie_info(mlist[0])
-    reportlab_setpdf.dump_data('./json/{}.json'.format(m['reviewed']), m)
+    mlist = get_movie_list()
+    #直接获取或者从json文件里读取
+    #mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+    get_movie_list_info(mlist)
