@@ -4,9 +4,11 @@ import json
 from reportlab.lib import colors
 import time
 import logging
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 
 
-def setpdf(mlist):
+def set_movie_list_pdf(mlist):
     # 设置中文字体
     simfang_path = './font/simsun.ttf'
     simfang_font = ttfonts.TTFont(name='simsun', filename=simfang_path)
@@ -58,19 +60,20 @@ def setpdf(mlist):
         # 虚线
         cav.setDash(2, 1)
         cav.setFillColor(colors.black)
-        cav.line(x_l, pagey_offset - offset*100,
-                 x_r, pagey_offset - offset*100)
+        cav.line(x_l, pagey_offset - offset * 100, x_r,
+                 pagey_offset - offset * 100)
         cav.setFont(psfontname=pdf_font, size=10, leading=1)
 
         # 序号+电影图片
         cav.setFillColor(colors.darkgray)
-        cav.drawString(x_l, movie_offset - offset*100, mdict['em'])
+        cav.drawString(x_l, movie_offset - offset * 100, mdict['em'])
         imgulr = mdict['image_addr']
-        cav.drawImage(imgulr, x_l + 15, movie_offset - img_height +
-                      10 - offset*100, img_width, img_height, 'auto')
+        cav.drawImage(imgulr, x_l + 15,
+                      movie_offset - img_height + 10 - offset * 100, img_width,
+                      img_height, 'auto')
 
         # 电影介绍
-        textobj = cav.beginText(130, movie_offset - offset*100, (80, 400))
+        textobj = cav.beginText(130, movie_offset - offset * 100, (80, 400))
         textobj.setFont(psfontname=pdf_font, size=12, leading=15)
         textobj.setFillColor(colors.ReportLabBlue)
         textobj.textLines(mdict['title'])
@@ -86,9 +89,14 @@ def setpdf(mlist):
     cav.save()
 
 
+def set_movie_info_pdf(minfo):
+    pass
+
 def lead_json(file_name):
     with open(file_name, 'r') as file:
         return json.load(file)
+
+
 def dump_data(file_name, json_data):
     with open(file_name, 'w') as file:
         json.dump(json_data, file, indent=2)
@@ -96,4 +104,4 @@ def dump_data(file_name, json_data):
 
 
 if __name__ == '__main__':
-    setpdf(lead_json('./json/movie_data.json'))
+    set_movie_list_pdf(lead_json('./json/movie_data.json'))

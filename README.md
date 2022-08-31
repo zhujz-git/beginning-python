@@ -23,6 +23,9 @@ https://docs.reportlab.com/reportlab/userguide/ch11_graphics/
 
 https://blog.csdn.net/xiaomage0511/article/details/124334755
 
+布局：
+https://vimsky.com/examples/detail/python-ex-reportlab.lib.styles---getSampleStyleSheet-function.html
+
 rml
 https://docs.reportlab.com/rmlfornewbies/
 
