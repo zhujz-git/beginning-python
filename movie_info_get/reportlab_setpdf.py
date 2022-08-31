@@ -3,6 +3,7 @@ from reportlab.pdfbase import pdfmetrics, ttfonts
 import json
 from reportlab.lib import colors
 import time
+import logging
 
 
 def setpdf(mlist):
@@ -91,7 +92,7 @@ def lead_json(file_name):
 def dump_data(file_name, json_data):
     with open(file_name, 'w') as file:
         json.dump(json_data, file, indent=2)
-        print('success dump file :{}'.format(file_name))
+        logging.info('success dump file :{}'.format(file_name))
 
 
 if __name__ == '__main__':

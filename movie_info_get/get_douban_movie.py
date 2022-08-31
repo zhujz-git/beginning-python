@@ -1,3 +1,4 @@
+from base64 import encode
 from time import sleep
 import requests
 import json
@@ -5,6 +6,8 @@ from bs4 import BeautifulSoup
 import re
 import reportlab_setpdf
 from pyquery import PyQuery as pq
+import os
+import logging
 
 
 # 设置统一的请求头
@@ -13,7 +16,7 @@ def get_html_head():
         'user-agent':
         'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
         'Cookie':
-        'douban-fav-remind=1; __utmv=30149280.4252; _ga=GA1.2.938565153.1593217773; _vwo_uuid_v2=DECC280D16CD4F57D701F745CD09857EB|2ff5b3f490ddf1585331fd3d0106680f; viewed="34993976"; gr_user_id=1eadc6be-b669-4f11-bca2-f7e16df6d8a9; __utmz=30149280.1649128375.67.9.utmcsr=m.ashvs1.cn|utmccn=(referral)|utmcmd=referral|utmcct=/2022/03/30/%e6%9c%88%e7%90%83%e9%99%a8%e8%90%bd-moonfall-2022/; ll="118174"; bid=nxozWDMC7Qg; __gads=ID=57d76279b9b07603-222d96b336d500a5:T=1657941077:RT=1657941077:S=ALNI_MbrRyQcNOZy-MxAqDaMixWDFAQsGA; Hm_lvt_16a14f3002af32bf3a75dfe352478639=1659870774; __yadk_uid=ZNrRh8jdz6CcZtyYRj8tH2ldNNozmQgE; __utma=30149280.938565153.1593217773.1661523221.1661696315.78; __utmc=30149280; __utmb=30149280.1.10.1661696315; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1661696316%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_ses.100001.4cf6=*; __utma=223695111.1464621297.1593217783.1661523222.1661696316.54; __utmb=223695111.0.10.1661696316; __utmc=223695111; __utmz=223695111.1661696316.54.45.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ap_v=0,6.0; __gpi=UID=0000047e5f873424:T=1649128399:RT=1661696386:S=ALNI_MayEAtdGdCJ8WvE4kW2l0PJKsWosA; _pk_id.100001.4cf6=902fb43b894f66e1.1593217783.54.1661697537.1661523236.',
+        'gr_user_id=06b268dc-f2af-472f-8d75-95dc7c0863c3; __utmv=30149280.4252; douban-fav-remind=1; bid=-rbqx6M9uZ8; __gads=ID=e60f97d8cddcc79d-2242122ac2d500e1:T=1661320700:RT=1661320700:S=ALNI_MbzwyBCrDyDaOaPn9lMF4au9Nn_2Q; ll="118174"; __utmc=30149280; dbcl2="42521702:5nS0bXkYJr0"; ck=pllS; frodotk="54a1ce10192d170cfde56a304b874524"; __utma=30149280.470231712.1617176844.1661836107.1661911542.30; __utmb=30149280.0.10.1661911542; __utmz=30149280.1661911542.30.5.utmcsr=accounts.douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/passport/login; __gpi=UID=000008fa6e8a48e4:T=1661320700:RT=1661911542:S=ALNI_MZrbfTwN0pFnmvL3ivykafmoE3P4w; push_noty_num=0; push_doumail_num=0',
     }
     return hd
 
@@ -40,7 +43,7 @@ def get_html_response(url):
         r = requests.get(url, headers=hd)
         r.encoding = 'utf-8'
         r.raise_for_status()
-        print('start parse :' + url)
+        logging.info('start parse :' + url)
         return r
     except Exception as e:
         print('爬取失败', e)
@@ -60,6 +63,7 @@ def bs4_parse_topmlist(mlist, soup):
             movie_dict['image_addr'] = movie.a.img['src']
             # 电影详情地址链接
             movie_dict['href'] = movie.a['href']
+            movie_dict['id'] = movie_dict['href'].split('/')[-2]
             # 获取电影名称和别名
             movie_dict['title'] = ''.join(
                 [i.string for i in movie.find_all('span', 'title')])
@@ -229,15 +233,22 @@ def get_reviews(url):
     #爬取10页
     for i in range(1):
         reviews_url = url + 'reviews?start={}'.format(i * 20)
-        reviews = get_html_soup(reviews_url).select('div[data-cid]')
-        for review in reviews:
-            cid = review['data-cid']
-            rname = review.find('a', 'name').string
-            rtime = review.find('span', 'main-meta').string
-            review_url = 'https://movie.douban.com/j/review/' + cid + '/full'
-            resp = get_html_response(review_url)
-            re_text = pq(resp.json().get('html')).text()
-            rlist.append((cid, rname, rtime, re_text))
+        soup = get_html_soup(reviews_url)
+        if (soup):
+            try:
+                reviews = soup.select('div[data-cid]')
+                for review in reviews:
+                    cid = review['data-cid']
+                    rname = review.find('a', 'name').string
+                    rtime = review.find('span', 'main-meta').string
+                    review_url = 'https://movie.douban.com/j/review/' + cid + '/full'
+                    resp = get_html_response(review_url)
+                    re_text = pq(resp.json().get('html')).text()
+                    rlist.append((cid, rname, rtime, re_text))
+            except Exception as e:
+                print(e)
+                continue
+
     return rlist
 
 
@@ -255,13 +266,35 @@ def get_movie_list():
 
 # 遍历电影列表中的所有电影，获取详细信息
 def get_movie_list_info(mlist):
+    id_list = get_restored_movie('./json')
     for i in mlist:
-        m = bs4_parse_movie_info(i)
-        reportlab_setpdf.dump_data('./json/{}.json'.format(m['id']), m)
+        # 已经获取的跳过
+        if i['id'] not in id_list:
+            try:
+                m = bs4_parse_movie_info(i)
+                logging.info('success get the movie:' + m['reviewed'])
+                reportlab_setpdf.dump_data('./json/{}.json'.format(m['id']), m)
+            except Exception as e:
+                print(e)
+                continue
+
+
+# 遍历json文件夹 导入已遍历的电影id
+def get_restored_movie(dir):
+    pat = re.compile('(\d+)\.json')
+    id_list = [
+        n.split('.')[0] for n in list(os.walk(dir))[0][2] if pat.match(n)
+    ]
+    return id_list
 
 
 if __name__ == '__main__':
-    mlist = get_movie_list()
+    #mlist = get_movie_list()
     #直接获取或者从json文件里读取
-    #mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+    mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+    handler = [
+        logging.FileHandler(filename='./log/movie.log', encoding='utf-8')
+    ]
+    logging.basicConfig(handlers=handler, level=logging.INFO)
+
     get_movie_list_info(mlist)

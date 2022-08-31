@@ -25,3 +25,7 @@ https://blog.csdn.net/xiaomage0511/article/details/124334755
 
 rml
 https://docs.reportlab.com/rmlfornewbies/
+
+## 实用技巧
+使用PowerShell实时查看日志文件的变化
+使用命令:Get-Content logfile -wait
