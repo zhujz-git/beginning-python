@@ -32,3 +32,8 @@ https://docs.reportlab.com/rmlfornewbies/
 ## 实用技巧
 使用PowerShell实时查看日志文件的变化
 使用命令:Get-Content logfile -wait
+
+## xlrd 
+不支持xlsx，降回去就可以了
+pip uninstall xlrd
+pip install xlrd==1.2.0
