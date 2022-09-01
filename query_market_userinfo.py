@@ -2,58 +2,68 @@ import xlrd
 import xlwings
 
 
-def load_user_info(filepath):
-    workbook = xlrd.open_workbook(filepath)
+# 查询excel文件里的数据，返回一个字典
+def load_source_data(filename, key_vol, query_list):
+    workbook = xlrd.open_workbook(filename)
     sheet1 = workbook.sheet_by_index(0)
     first_row = sheet1.row_values(0)
 
-    #查询信息列，第一列为搜索键
-    query_list = ['企业名称', '法定代表人', '电话', '经营地址']
+    # 查询关键字列数据
     col_values = []
+    key_id = first_row.index(key_vol)
+    key_values = sheet1.col_values(key_id)
+
+    # 查询需要的数据列
     for col_name in query_list:
         colid = first_row.index(col_name)
         val_list = sheet1.col_values(colid)
         col_values.append(val_list)
- 
-    #筛选查询数据 后续用pandas或者numpy改进
-    user_info_map = {}
-    for i in range(1, len(col_values[0])):
-        user_name_id = col_values[0][i]
-        user_info_map[user_name_id] = [col_values[j][i]
-                                       for j in range(1, len(col_values))]
 
+    # 筛选查询数据 后续用pandas或者numpy改进
+    user_info_map = {}
+    for i in range(1, len(key_values)):
+        key_value = key_values[i]
+        user_info_map[key_value] = [
+            col_values[j][i] for j in range(0, len(col_values))
+        ]
+    print('success query source data.')
     return user_info_map
 
 
-def load_user_phone(filepath, user_info_map):
+def set_dest_data(filename, user_info_map, vol_list):
     try:
         app = xlwings.App(add_book=False)
-        workbook = app.books.open(filepath)
-
+        workbook = app.books.open(filename)
         load_sheet = workbook.sheets[0]
+
+        # 关键字在第几列
+        key_vol = 1
+        # 从第几行开始（排除标题行）
+        start_row = 2
 
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
 
-        for i in range(2, nrow + 1):
-            user_name = load_sheet.range(i, 1).value.strip()
+        for i in range(start_row, nrow + 1):
+            user_name = load_sheet.range(i, key_vol).value.strip()
 
-            #设备地址
+            # 关键字查询
             user_info = user_info_map.get(user_name, '')
 
             if user_info:
-                #根据查询条件 将要查询的数据填充
-                load_sheet['{}{}'.format('I', i)].value = user_info[0]
-                load_sheet['{}{}'.format('J', i)].value = user_info[1]
-                load_sheet['{}{}'.format('K', i)].value = user_info[2] 
+                # 根据查询条件 将要查询的数据填充
+                for vol_id in range(len(vol_list)):
+                    load_sheet['{}{}'.format(vol_list[vol_id],
+                                             i)].value = user_info[vol_id]
             else:
-                load_sheet['{}{}'.format('I', i)].value = '未查到该单位'
+                load_sheet['{}{}'.format(vol_list[0], i)].value = '未查到该单位'
 
         # 保存文件
         workbook.save()
         # 关闭工作表
         workbook.close()
+        print('success set dest data file.')
     except Exception as e:
         print(e)
         # 退出程序
@@ -61,12 +71,31 @@ def load_user_phone(filepath, user_info_map):
         return
     app.quit()
 
-if __name__ == '__main__':
-    user_info_map = load_user_info('./pydata/20220901/娄桥-房屋介绍2022.8.15.xls')
-    user_info_map.update(
-        load_user_info('./pydata/20220901/娄桥-教育培训公司2022.8.15.xls'))
-    user_info_map.update(
-        load_user_info('./pydata/20220901/娄桥-装修装饰公司2022.8.15.xls'))
-    user_info_map.update(load_user_info('./pydata/20220901/汽车销售-娄桥市场主体名单.xls'))
 
-    load_user_phone('./pydata/20220901/名单汇总.xlsx', user_info_map)
+def query_market_excel():
+    # 查询信息列，第一列为搜索键
+    key_vol = '企业名称'
+    query_list = ['法定代表人', '电话', '经营地址']
+    vol_list = ['I', 'J', 'K']
+
+    user_info_map = {}
+    # 原文件
+    flist = [
+        './pydata/20220901/娄桥-房屋介绍2022.8.15.xls',
+        './pydata/20220901/娄桥-教育培训公司2022.8.15.xls',
+        './pydata/20220901/娄桥-装修装饰公司2022.8.15.xls',
+        './pydata/20220901/汽车销售-娄桥市场主体名单.xls'
+    ]
+    # 目标文件
+    set_filename = './pydata/20220901/名单汇总.xlsx'
+
+    # 获取表格数据
+    for fname in flist:
+        user_info_map.update(load_source_data(fname, key_vol, query_list))
+
+    # 根据源数据，写入目标文件
+    set_dest_data(set_filename, user_info_map, vol_list)
+
+
+if __name__ == '__main__':
+    query_market_excel()
