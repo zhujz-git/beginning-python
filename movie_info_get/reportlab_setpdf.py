@@ -5,14 +5,12 @@ from reportlab.lib import colors
 import time
 import logging
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
+from reportlab.lib.units import inch, cm
+from reportlab.lib.pagesizes import A4
 
 def set_movie_list_pdf(mlist):
-    # 设置中文字体
-    simfang_path = './font/simsun.ttf'
-    simfang_font = ttfonts.TTFont(name='simsun', filename=simfang_path)
-    pdfmetrics.registerFont(font=simfang_font)
+
     cav = canvas.Canvas('./pdf/doubanmovie250.pdf')
     pdf_font = 'simsun'
 
@@ -90,7 +88,45 @@ def set_movie_list_pdf(mlist):
 
 
 def set_movie_info_pdf(minfo):
-    pass
+
+    pdf_font = 'simsun'
+    # 生成pdf文件
+    doc = SimpleDocTemplate('./pdf/frame_test.pdf', pagesize=A4)
+    
+    styles = getSampleStyleSheet()
+    styleN = styles['Normal']
+    styleN.fontName = 'simsun'      # 字体名
+    styleN.fontSize = 18            # 字体大小
+    styleN.leading = 50             # 行间距
+    styleN.textColor = colors.green     # 字体颜色
+    styleN.alignment = 1    # 居中
+    styleN.wordWrap = 'CJK'
+    styleH = styles['Heading1']
+    story = []
+
+    # add some flowables
+    story.append(Paragraph("This is a Heading", styleH))
+    titile = Paragraph("This is a paragraph in <i>Normal</i> style. <br /> This is a paragraph in <i>Normal</i> style.",
+                           styleN)
+    story.append(titile)
+    img = Image('https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2879160094.webp')       # 读取指定路径下的图片
+    img.drawWidth = 5*cm        # 设置图片的宽度
+    img.drawHeight = 8*cm       # 设置图片的高度
+    col_width = 120
+    data = [(img, titile)]
+    ta = Table(data)
+    story.append(ta)
+    story.append(img)
+    str_para = ''
+    for i in range(100):
+            str_para += '影片讲述拥有一双明眸的朱芷欣（吴千语 饰），却有一对失明父母：甘笑红（惠英红 饰）、朱国强（吴岱融'
+    story.append(Paragraph(str_para, styleN))
+
+    #f = Frame(inch, inch, 6*inch, 9*inch, showBoundary=0)
+    #f.addFromList(story, canv)
+    
+    doc.build(story)
+
 
 def lead_json(file_name):
     with open(file_name, 'r') as file:
@@ -104,4 +140,10 @@ def dump_data(file_name, json_data):
 
 
 if __name__ == '__main__':
-    set_movie_list_pdf(lead_json('./json/movie_data.json'))
+    # 设置中文字体
+    simfang_path = './font/simsun.ttf'
+    simfang_font = ttfonts.TTFont(name='simsun', filename=simfang_path)
+    pdfmetrics.registerFont(font=simfang_font)
+    minfo = []
+    set_movie_info_pdf(minfo)
+    # set_movie_list_pdf(lead_json('./json/movie_data.json'))

@@ -1,5 +1,7 @@
 # beginning-python
 Python 学习知识链接：
+官方文档 
+https://docs.python.org/zh-cn/3.8/index.html
 
 ## git hub 网址
 [zhujz 仓库](https://github.com/zhujz-git/beginning-python)
@@ -25,6 +27,8 @@ https://blog.csdn.net/xiaomage0511/article/details/124334755
 
 布局：
 https://vimsky.com/examples/detail/python-ex-reportlab.lib.styles---getSampleStyleSheet-function.html
+https://mp.weixin.qq.com/s/iQTKkDVOf3oMr6WnKScRpQ
+https://zhuanlan.zhihu.com/p/456486769
 
 rml
 https://docs.reportlab.com/rmlfornewbies/
