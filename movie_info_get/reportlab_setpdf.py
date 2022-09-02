@@ -7,7 +7,9 @@ import logging
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
 from reportlab.lib.units import inch, cm
+from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
+
 
 def set_movie_list_pdf(mlist):
 
@@ -90,41 +92,98 @@ def set_movie_list_pdf(mlist):
 def set_movie_info_pdf(minfo):
 
     pdf_font = 'simsun'
+    pdf_filename = './pdf/' + minfo['id'] + '-' + minfo['reviewed'] + '.pdf'
     # 生成pdf文件
-    doc = SimpleDocTemplate('./pdf/frame_test.pdf', pagesize=A4)
-    
+    doc = SimpleDocTemplate(pdf_filename,
+                            pagesize=A4,
+                            initialFontName=pdf_font)
+
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
-    styleN.fontName = 'simsun'      # 字体名
-    styleN.fontSize = 18            # 字体大小
-    styleN.leading = 50             # 行间距
-    styleN.textColor = colors.green     # 字体颜色
-    styleN.alignment = 1    # 居中
-    styleN.wordWrap = 'CJK'
-    styleH = styles['Heading1']
+    styleN.fontName = pdf_font
+    styleN.alignment = TA_LEFT
+    styleB = styles['BodyText']
+    styleB.fontName = pdf_font
+    styleT = styles['Title']
+    styleT.alignment = TA_LEFT
+    styleT.fontName = pdf_font
+    styleH1 = styles['Heading1']
+    styleH1.fontName = pdf_font
+    styleH1.alignment = TA_LEFT
+    styleH2 = styles['Heading2']
+    styleH2.fontName = pdf_font
+    styleH2.alignment = TA_LEFT
+    styleH3 = styles['Heading3']
+    styleH3.fontName = pdf_font
+
     story = []
 
-    # add some flowables
-    story.append(Paragraph("This is a Heading", styleH))
-    titile = Paragraph("This is a paragraph in <i>Normal</i> style. <br /> This is a paragraph in <i>Normal</i> style.",
-                           styleN)
-    story.append(titile)
-    img = Image('https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2879160094.webp')       # 读取指定路径下的图片
-    img.drawWidth = 5*cm        # 设置图片的宽度
-    img.drawHeight = 8*cm       # 设置图片的高度
-    col_width = 120
-    data = [(img, titile)]
-    ta = Table(data)
-    story.append(ta)
-    story.append(img)
-    str_para = ''
-    for i in range(100):
-            str_para += '影片讲述拥有一双明眸的朱芷欣（吴千语 饰），却有一对失明父母：甘笑红（惠英红 饰）、朱国强（吴岱融'
-    story.append(Paragraph(str_para, styleN))
+    # 标题
+    str_text = minfo['top_no'] + '豆瓣电影Top250'
+    story.append(Paragraph(str_text, styleN))
+    str_text = minfo['reviewed'] + minfo['year']
+    story.append(Paragraph(str_text, styleT))
 
-    #f = Frame(inch, inch, 6*inch, 9*inch, showBoundary=0)
-    #f.addFromList(story, canv)
-    
+    # 电影主图+电影信息
+    img = Image(minfo['mainpic'])  # 读取指定路径下的图片
+    img.drawWidth = 5 * cm  # 设置图片的宽度
+    img.drawHeight = 8 * cm  # 设置图片的高度
+    # col_width = 120
+    str_text = '<br />'.join(minfo['info'])
+    table_para = Paragraph(str_text, styleN)
+    story.append(Table([(img, table_para)]))
+
+    # 剧情简介
+    str_text = minfo['related-info']
+    story.append(Paragraph(str_text, styleB))
+
+    # 演职员
+    str_text = minfo['celebrities']['title']
+    story.append(Paragraph(str_text, styleH1))
+    cele_li = minfo['celebrities']['li']
+    table_data = []
+    for cele in cele_li:
+        img = Image(cele[2])  # 读取指定路径下的图片
+        img.drawWidth = 2 * cm  # 设置图片的宽度
+        img.drawHeight = 3 * cm  # 设置图片的高度
+        table_data.append((img, cele[0], cele[1]))
+    story.append(Table(table_data))
+
+    # 显示 剧照 海报 壁纸
+    table_data = []
+    pic_types = minfo['related-pic']
+    pic_num = 1
+    '''for pic_type in pic_types:
+        str_text = pic_type['title']
+        story.append(Paragraph(str_text, styleH1))
+        table_data = []
+        for i in range(pic_num):
+            img = Image(pic_type['list'][i][1])  # 读取指定路径下的图片
+            img.drawWidth = 2 * cm  # 设置图片的宽度
+            img.drawHeight = 3 * cm  # 设置图片的高度
+            table_data.append((img,))
+        story.append(Table(table_data))'''
+
+    # 短评
+    str_text = minfo['comments']['title']
+    story.append(Paragraph(str_text, styleH1))
+    comments_list = minfo['comments']['list']
+    for i in range(10):
+        str_text = comments_list[i][0]
+        story.append(Paragraph(str_text, styleH2))
+        str_text = comments_list[i][1]
+        story.append(Paragraph(str_text, styleB))
+
+    # 影评
+    str_text = '影评'
+    story.append(Paragraph(str_text, styleH1))
+    reviews_list = minfo['reviews']
+    for i in range(10):
+        str_text = reviews_list[i][1] + ' ' + reviews_list[i][2]
+        story.append(Paragraph(str_text, styleH2))
+        str_text = reviews_list[i][3]
+        story.append(Paragraph(str_text, styleB))
+
     doc.build(story)
 
 
@@ -144,6 +203,6 @@ if __name__ == '__main__':
     simfang_path = './font/simsun.ttf'
     simfang_font = ttfonts.TTFont(name='simsun', filename=simfang_path)
     pdfmetrics.registerFont(font=simfang_font)
-    minfo = []
+    minfo = lead_json('./json/1291546.json')
     set_movie_info_pdf(minfo)
     # set_movie_list_pdf(lead_json('./json/movie_data.json'))

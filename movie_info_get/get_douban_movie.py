@@ -289,9 +289,9 @@ def get_restored_movie(dir):
 
 
 if __name__ == '__main__':
-    #mlist = get_movie_list()
+    mlist = get_movie_list()
     #直接获取或者从json文件里读取
-    mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+    #mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
     handler = [
         logging.FileHandler(filename='./log/movie.log', encoding='utf-8')
     ]

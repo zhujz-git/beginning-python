@@ -14,6 +14,22 @@ def get_search_kw(url, keyvalue):
         print('爬取失败', e)
 
 
+def get_html_response(url):
+    try:
+        hd = {
+            'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+            'cookie':
+            't=6f3b1218569a3d352134d565298a1a2e; enc=o6Gnp9%2Fu%2BlX110a8%2F5G8apB%2FC2B1mjLWCRCW2J5Y%2FZx1py8iaFFo2x5DSLip8dAK2ROTPKryEK3bSXJBSXxxiA%3D%3D; cna=Cb/qGKFYJXgCATy+YA6OCoT/; miid=703435975575142564; sgcookie=E100ome5ntgtW%2F7RbhUApz%2BifaE9pBo27chPdXzoOIyVBe9c1NQlO2eo0jbi81csoNh%2FM57zHA3pxamueMHsThri5DpIMr4iGR%2FxuTJXnEOIF629DJShD0FX13lOFJMPhWUt; tracknick=ylucky64; _cc_=WqG3DMC9EA%3D%3D; thw=cn; mt=ci=-1_0; uc1=cookie14=UoexOzqjKoPz%2Bw%3D%3D; cookie2=102378a039befe611a4f7ff43ec93781; _tb_token_=ebb3e8e83beee; alitrackid=www.taobao.com; lastalitrackid=www.taobao.com; _m_h5_tk=a50aaecab377fd7818523f7dd376927f_1660115613937; _m_h5_tk_enc=0d7eaca75480543ad4c6d03b66f8a08c; xlly_s=1; JSESSIONID=6ED846FB08ACE9683D8E71836411CA1E; tfstk=cV1CBFqVaDmCyer6bpaaUzy62EdPZvcB7vtdRlfVXFRZnF_CihG2cfd6Ecx1FF1..; l=eBxcgu1lLeemdA_BBOfZourza779jIRAguPzaNbMiOCP_71Hv-vPW6YDOOTMCnGAh6EyR37vCcawBeYBqIccSQLy2j-la_Mmn; isg=BC8v8emikVUzTJbTAZYJtk-avkM51IP20EGBs0G8yB79kE-SSac_R1ZCFoKu6Ftu'
+        }
+        r = requests.get(url, headers=hd)
+        r.encoding = r.apparent_encoding
+        r.raise_for_status()
+        return r
+    except Exception as e:
+        print('爬取失败', e)
+
+
 def get_html_content(url):
     try:
         hd = {
@@ -50,7 +66,7 @@ def down_web_image(url, root):
         if not os.path.exists(root):
             os.mkdir(root)
         if not os.path.exists(path):
-            r = requests.get(url)
+            r = get_html_response(url)
             with open(path, 'wb') as f:
                 f.write(r.content)
                 f.close()
@@ -64,7 +80,7 @@ def down_web_image(url, root):
 def test_down_web_image():
     url = 'https://i.natgeofe.com/n/848510a5-e914-4a20-9327-65c742c80a8d/frank-drake-universe.jpg'
     root = 'image//'
-    down_web_image(url, root)
+    down_web_image(url, root)   
 
 
 def bs4_parse_html(ulist, htxt):
