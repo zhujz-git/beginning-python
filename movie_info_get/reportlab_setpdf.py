@@ -9,6 +9,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Tabl
 from reportlab.lib.units import inch, cm
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
+import get_douban_movie
+import os
 
 
 def set_movie_list_pdf(mlist):
@@ -125,7 +127,8 @@ def set_movie_info_pdf(minfo):
     story.append(Paragraph(str_text, styleT))
 
     # 电影主图+电影信息
-    img = Image(minfo['mainpic'])  # 读取指定路径下的图片
+
+    img = get_html_img(minfo['mainpic'])  # 读取指定路径下的图片
     img.drawWidth = 5 * cm  # 设置图片的宽度
     img.drawHeight = 8 * cm  # 设置图片的高度
     # col_width = 120
@@ -143,7 +146,7 @@ def set_movie_info_pdf(minfo):
     cele_li = minfo['celebrities']['li']
     table_data = []
     for cele in cele_li:
-        img = Image(cele[2])  # 读取指定路径下的图片
+        img = get_html_img(cele[2])  # 读取指定路径下的图片
         img.drawWidth = 2 * cm  # 设置图片的宽度
         img.drawHeight = 3 * cm  # 设置图片的高度
         table_data.append((img, cele[0], cele[1]))
@@ -152,17 +155,17 @@ def set_movie_info_pdf(minfo):
     # 显示 剧照 海报 壁纸
     table_data = []
     pic_types = minfo['related-pic']
-    pic_num = 1
-    '''for pic_type in pic_types:
+    pic_num = 5
+    for pic_type in pic_types:
         str_text = pic_type['title']
         story.append(Paragraph(str_text, styleH1))
         table_data = []
         for i in range(pic_num):
-            img = Image(pic_type['list'][i][1])  # 读取指定路径下的图片
+            img = get_html_img(pic_type['list'][i][1])  # 读取指定路径下的图片
             img.drawWidth = 2 * cm  # 设置图片的宽度
             img.drawHeight = 3 * cm  # 设置图片的高度
             table_data.append((img,))
-        story.append(Table(table_data))'''
+        story.append(Table(table_data))
 
     # 短评
     str_text = minfo['comments']['title']
@@ -191,6 +194,13 @@ def lead_json(file_name):
     with open(file_name, 'r') as file:
         return json.load(file)
 
+# 返回一个img，并删除文件
+def get_html_img(url):
+    root = './image/'
+    filepath = get_douban_movie.down_web_image(url, root)
+    print(filepath)
+    img = Image(filepath)
+    return img
 
 def dump_data(file_name, json_data):
     with open(file_name, 'w') as file:

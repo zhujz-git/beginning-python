@@ -48,6 +48,24 @@ def get_html_response(url):
     except Exception as e:
         print('爬取失败', e)
 
+# 下载图片文件
+def down_web_image(url, root):
+    try:
+        path = root + url.split('/')[-1]
+        if not os.path.exists(root):
+            os.mkdir(root)
+        if not os.path.exists(path):
+            r = get_html_response(url)
+            with open(path, 'wb') as f:
+                f.write(r.content)
+                f.close()
+                print('文件保存成功', path)
+                return path
+        else:
+            print('文件已存在', path)
+            return path
+    except Exception as e:
+        print('爬取失败', e)
 
 # 分析top250列表
 def bs4_parse_topmlist(mlist, soup):
