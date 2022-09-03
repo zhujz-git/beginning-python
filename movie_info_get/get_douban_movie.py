@@ -49,6 +49,8 @@ def get_html_response(url):
         print('爬取失败', e)
 
 # 下载图片文件
+
+
 def down_web_image(url, root):
     try:
         path = root + url.split('/')[-1]
@@ -59,15 +61,17 @@ def down_web_image(url, root):
             with open(path, 'wb') as f:
                 f.write(r.content)
                 f.close()
-                print('文件保存成功', path)
+                logging.info('success download image:{}'.format(path))
                 return path
         else:
-            print('文件已存在', path)
+            logging.info('image is alread exist:{}'.format(path))
             return path
     except Exception as e:
         print('爬取失败', e)
 
 # 分析top250列表
+
+
 def bs4_parse_topmlist(mlist, soup):
     try:
         # 找出网页中的所有电影<ol class="grid_view">中的所有<div class="item">
@@ -123,7 +127,7 @@ def bs4_parse_movie_info(movie_info):
     # 剧情简介
     related_info = cont.find('div', 'related-info')
     minfo['related-info'] = ''.join(
-        related_info.h2.stripped_strings) + '\n' + '\n'.join(
+        related_info.h2.stripped_strings) + '<br />' + '<br />'.join(
             related_info.find('span', property="v:summary").stripped_strings)
     # 演职员表
     minfo['celebrities'] = get_movie_celebrities(
@@ -204,7 +208,8 @@ def get_all_pic(url):
 
     # 遍历所有页面里的图片，获取地址 30张 一页
     pic_id_list = []
-    for i in range(int(npic / 30) + 1):
+    page_num = min(int(npic / 30), 2)
+    for i in range(page_num):
         nurl = url + '&start=' + '{}'.format(i * 30)
         soup = get_html_soup(nurl)
         cont = soup.find('div', id='content')
@@ -231,9 +236,9 @@ def get_comments(comments):
     pat = re.compile(r'(\d+)')
     comments_num = int(pat.search(mod.a.string).group(0))
     limit = 50
-    #最大只爬10页短评 不然太慢
+    # 最大只爬10页短评 不然太慢
     com_list = []
-    n = min(int(comments_num / 200), 10)
+    n = min(int(comments_num / 200), 1)
     for i in range(n):
         url = href + '&start={}'.format(
             i * limit) + '&limit={}'.format(limit) + '&sort=new_score'
@@ -248,7 +253,7 @@ def get_comments(comments):
 def get_reviews(url):
     reviews_url = url + 'reviews'
     rlist = []
-    #爬取10页
+    # 爬取10页
     for i in range(1):
         reviews_url = url + 'reviews?start={}'.format(i * 20)
         soup = get_html_soup(reviews_url)
@@ -306,13 +311,18 @@ def get_restored_movie(dir):
     return id_list
 
 
+def set_logging_config():
+    if not os.path.exists('./log'):
+        os.mkdir('./log')
+    hdler = [logging.FileHandler(filename='./log/movie_pdf.log', encoding='utf-8')]
+    logging.basicConfig(handlers=hdler, level=logging.INFO)
+
 if __name__ == '__main__':
-    mlist = get_movie_list()
-    #直接获取或者从json文件里读取
-    #mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
-    handler = [
-        logging.FileHandler(filename='./log/movie.log', encoding='utf-8')
-    ]
-    logging.basicConfig(handlers=handler, level=logging.INFO)
+    set_logging_config()
+
+    # mlist = get_movie_list()
+    # 直接获取或者从json文件里读取
+    mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
+ 
 
     get_movie_list_info(mlist)

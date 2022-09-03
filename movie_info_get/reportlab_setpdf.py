@@ -1,16 +1,17 @@
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics, ttfonts
-import json
 from reportlab.lib import colors
 import time
+import os
+import re
 import logging
+import json
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
 from reportlab.lib.units import inch, cm
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.pagesizes import A4
 import get_douban_movie
-import os
 
 
 def set_movie_list_pdf(mlist):
@@ -109,12 +110,15 @@ def set_movie_info_pdf(minfo):
     styleT = styles['Title']
     styleT.alignment = TA_LEFT
     styleT.fontName = pdf_font
+    styleT.textColor = colors.darkgoldenrod
     styleH1 = styles['Heading1']
     styleH1.fontName = pdf_font
+    styleH1.textColor=colors.darkgreen
     styleH1.alignment = TA_LEFT
     styleH2 = styles['Heading2']
     styleH2.fontName = pdf_font
     styleH2.alignment = TA_LEFT
+    styleH2.textColor=colors.darkblue
     styleH3 = styles['Heading3']
     styleH3.fontName = pdf_font
 
@@ -129,12 +133,12 @@ def set_movie_info_pdf(minfo):
     # 电影主图+电影信息
 
     img = get_html_img(minfo['mainpic'])  # 读取指定路径下的图片
-    img.drawWidth = 5 * cm  # 设置图片的宽度
-    img.drawHeight = 8 * cm  # 设置图片的高度
-    # col_width = 120
+    img.drawWidth = 108  # 设置图片的宽度
+    img.drawHeight = 160   # 设置图片的高度
+    col_width = [108, 320]
     str_text = '<br />'.join(minfo['info'])
     table_para = Paragraph(str_text, styleN)
-    story.append(Table([(img, table_para)]))
+    story.append(Table([(img, table_para)], colWidths=col_width, vAlign='LEFT'))
 
     # 剧情简介
     str_text = minfo['related-info']
@@ -144,28 +148,47 @@ def set_movie_info_pdf(minfo):
     str_text = minfo['celebrities']['title']
     story.append(Paragraph(str_text, styleH1))
     cele_li = minfo['celebrities']['li']
-    table_data = []
+    
+    img_data = []
+    cele1_data = []
+    cele2_data = []
+    col_width = 75
+    rowHeight = [100, 10, 10]
+    style = [
+            ('FONTNAME', (0, 0), (-1, -1), pdf_font),  # 字体
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),  # 所有表格上下居中对齐
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER')
+        ]
     for cele in cele_li:
         img = get_html_img(cele[2])  # 读取指定路径下的图片
-        img.drawWidth = 2 * cm  # 设置图片的宽度
-        img.drawHeight = 3 * cm  # 设置图片的高度
-        table_data.append((img, cele[0], cele[1]))
-    story.append(Table(table_data))
+        img.drawWidth = 70#9.5*4  # 设置图片的宽度
+        img.drawHeight = 99#13.4*4  # 设置图片的高度
+        img_data.append(img)
+        cele1_data.append(cele[0][:6])
+        cele2_data.append(cele[1][:6])
+    table_data = [img_data, cele1_data, cele2_data]
+    story.append(Table(table_data, style=style, colWidths=col_width, rowHeights=rowHeight))
 
     # 显示 剧照 海报 壁纸
     table_data = []
     pic_types = minfo['related-pic']
-    pic_num = 5
+    pic_num = 4
     for pic_type in pic_types:
         str_text = pic_type['title']
         story.append(Paragraph(str_text, styleH1))
         table_data = []
         for i in range(pic_num):
-            img = get_html_img(pic_type['list'][i][1])  # 读取指定路径下的图片
-            img.drawWidth = 2 * cm  # 设置图片的宽度
-            img.drawHeight = 3 * cm  # 设置图片的高度
-            table_data.append((img,))
-        story.append(Table(table_data))
+            img = get_html_img(pic_type['list'][i][1])  # 读取指定路径下的图片             
+            rate = img.imageWidth/float(img.imageHeight)
+            if img.imageWidth > img.imageHeight:
+                img.drawWidth = 100  # 设置图片的宽度
+                img.drawHeight = 100/rate  # 设置图片的高度
+            else:
+                img.drawWidth = 100*rate  # 设置图片的宽度
+                img.drawHeight = 100  # 设置图片的高度
+
+            table_data.append(img)
+        story.append(Table((table_data,)))
 
     # 短评
     str_text = minfo['comments']['title']
@@ -189,26 +212,40 @@ def set_movie_info_pdf(minfo):
 
     doc.build(story)
 
+    # 最后删除下载的图片临时文件
+    for f in get_all_dir_file('.\\image\\tmp'):
+        os.remove(f)
+        logging.info('delete file:'+ f)
+    logging.info('success generate a pdf:{}'.format(pdf_filename))
 
 def lead_json(file_name):
     with open(file_name, 'r') as file:
         return json.load(file)
 
-# 返回一个img，并删除文件
+# 下载文件并加载，返回一个img
 def get_html_img(url):
-    root = './image/'
+    root = './image/tmp/'
     filepath = get_douban_movie.down_web_image(url, root)
-    print(filepath)
     img = Image(filepath)
+    
     return img
 
+# 写入json文件
 def dump_data(file_name, json_data):
     with open(file_name, 'w') as file:
         json.dump(json_data, file, indent=2)
         logging.info('success dump file :{}'.format(file_name))
 
+# 获取一个目录里的所有文件
+def get_all_dir_file(dir):
+    for root, dirs, files in os.walk(dir):
+        for name in files:
+            yield os.path.join(root, name)
+
 
 if __name__ == '__main__':
+    # 设置日志
+    get_douban_movie.set_logging_config()
     # 设置中文字体
     simfang_path = './font/simsun.ttf'
     simfang_font = ttfonts.TTFont(name='simsun', filename=simfang_path)
