@@ -41,3 +41,7 @@ https://docs.reportlab.com/rmlfornewbies/
 不支持xlsx，降回去就可以了
 pip uninstall xlrd
 pip install xlrd==1.2.0
+
+## 高数
+第五版答案
+https://www.docin.com/p-2051248181.html
