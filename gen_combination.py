@@ -87,7 +87,7 @@ def write_data_to_excel(filepath, comb_data, goods_data):
             # <必填>组合商品编码
             load_sheet['{}{}'.format('A', line_num)].value = comb[0]
             # 条码
-            #load_sheet['{}{}'.format('B', line_num)].value = comb[0]
+            load_sheet['{}{}'.format('B', line_num)].value = comb[0]
             # <必填>组合商品名称
             load_sheet['{}{}'.format('C', line_num)].value = comb[1]
             # 品牌
