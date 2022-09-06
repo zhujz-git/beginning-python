@@ -48,6 +48,7 @@ def get_html_response(url):
     except Exception as e:
         print('爬取失败', e)
 
+
 # 下载图片文件
 
 
@@ -68,6 +69,7 @@ def down_web_image(url, root):
             return path
     except Exception as e:
         print('爬取失败', e)
+
 
 # 分析top250列表
 
@@ -314,8 +316,11 @@ def get_restored_movie(dir):
 def set_logging_config():
     if not os.path.exists('./log'):
         os.mkdir('./log')
-    hdler = [logging.FileHandler(filename='./log/movie_pdf.log', encoding='utf-8')]
+    hdler = [
+        logging.FileHandler(filename='./log/movie_pdf.log', encoding='utf-8')
+    ]
     logging.basicConfig(handlers=hdler, level=logging.INFO)
+
 
 if __name__ == '__main__':
     set_logging_config()
@@ -323,6 +328,5 @@ if __name__ == '__main__':
     # mlist = get_movie_list()
     # 直接获取或者从json文件里读取
     mlist = reportlab_setpdf.lead_json('./json/movie_data.json')
- 
 
     get_movie_list_info(mlist)

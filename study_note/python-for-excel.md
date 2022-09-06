@@ -16,3 +16,8 @@ python for excel 【瑞士】Felix Zumstein 著 冯黎 译
 + 增强复制 n += 1, n -= 1
 + python允许返回以逗号隔开的多个返回值，方便使用
 + PEP（Python Enhancement Proposals)Python改进提案
+
+## 第四章Numpy基础
++ 导入惯例：import numpy as np
++ 通用函数（universal function) ufunc 会对Numpy数组中的每个元素执行操作
++ axis=0 表示以行为轴，axis=1表示以列为轴
