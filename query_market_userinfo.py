@@ -21,16 +21,17 @@ def load_source_data(filename, key_vol, query_list):
 
     # 筛选查询数据 后续用pandas或者numpy改进
     user_info_map = {}
-    for i in range(1, len(key_values)):
-        key_value = key_values[i]
+    # for i in range(1, len(key_values)):
+    for i, key_value in enumerate(key_values[1:]):
         user_info_map[key_value] = [
             col_values[j][i] for j in range(0, len(col_values))
         ]
+
     print('success query source data.')
     return user_info_map
 
 
-def set_dest_data(filename, user_info_map, vol_list):
+def set_dest_data(filename, user_info_map, vol_list, query_list):
     try:
         app = xlwings.App(add_book=False)
         workbook = app.books.open(filename)
@@ -41,6 +42,8 @@ def set_dest_data(filename, user_info_map, vol_list):
         # 从第几行开始（排除标题行）
         start_row = 2
 
+        for i, vol_id in enumerate(vol_list):
+            load_sheet['{}{}'.format(vol_id, 1)].value = query_list[i]
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
@@ -94,7 +97,7 @@ def query_market_excel():
         user_info_map.update(load_source_data(fname, key_vol, query_list))
 
     # 根据源数据，写入目标文件
-    set_dest_data(set_filename, user_info_map, vol_list)
+    set_dest_data(set_filename, user_info_map, vol_list, query_list)
 
 
 if __name__ == '__main__':
