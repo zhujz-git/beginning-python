@@ -27,5 +27,5 @@ def get_all_change(dir):
 
 
 if __name__ == '__main__':
-    dir = 'D:\\娄桥市监所\\照片\\20220825 云泰查封'
+    dir = 'D:\\娄桥市监所\\照片\\20220905 中土'
     get_all_change(dir)
