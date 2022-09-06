@@ -21,7 +21,6 @@ def load_source_data(filename, key_vol, query_list):
 
     # 筛选查询数据 后续用pandas或者numpy改进
     user_info_map = {}
-    # for i in range(1, len(key_values)):
     for i, key_value in enumerate(key_values[1:]):
         user_info_map[key_value] = [
             col_values[j][i] for j in range(0, len(col_values))
@@ -42,8 +41,10 @@ def set_dest_data(filename, user_info_map, vol_list, query_list):
         # 从第几行开始（排除标题行）
         start_row = 2
 
+        # 填充好标题行
         for i, vol_id in enumerate(vol_list):
-            load_sheet['{}{}'.format(vol_id, 1)].value = query_list[i]
+            load_sheet['{}{}'.format(vol_id, key_vol)].value = query_list[i]
+            
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
@@ -56,9 +57,8 @@ def set_dest_data(filename, user_info_map, vol_list, query_list):
 
             if user_info:
                 # 根据查询条件 将要查询的数据填充
-                for vol_id in range(len(vol_list)):
-                    load_sheet['{}{}'.format(vol_list[vol_id],
-                                             i)].value = user_info[vol_id]
+                for j, vol in enumerate(vol_list):
+                    load_sheet['{}{}'.format(vol, i)].value = user_info[j]
             else:
                 load_sheet['{}{}'.format(vol_list[0], i)].value = '未查到该单位'
 
