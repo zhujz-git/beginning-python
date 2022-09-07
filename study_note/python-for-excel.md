@@ -20,4 +20,5 @@ python for excel 【瑞士】Felix Zumstein 著 冯黎 译
 ## 第四章Numpy基础
 + 导入惯例：import numpy as np
 + 通用函数（universal function) ufunc 会对Numpy数组中的每个元素执行操作
-+ axis=0 表示以行为轴，axis=1表示以列为轴
++ axis=0 表示以行为轴，axis=1表示以列为轴 (轴的意思就是 只剩这一维)
++ Numpy数组切片时，返回的是视图(view) arrar.copy 函数可以返回一个副本
