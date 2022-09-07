@@ -2,7 +2,7 @@
 python for excel 【瑞士】Felix Zumstein 著 冯黎 译
 2022-9-4 buy from tb
 
-##　第三章
+## 第三章
 + Ctrl + / 注释快捷键
 + 用bool构造器来检查一下对象是True还是False bool(some expression)
 + f字符串 f"{变量名}"来处理字符串包含的变量
@@ -13,3 +13,11 @@ python for excel 【瑞士】Felix Zumstein 著 冯黎 译
     print('') if is_pre else xxx
 + 迭代时需要用到计数器 enumerate
     for i, item in enumerate(items): print(i, item)
++ 增强复制 n += 1, n -= 1
++ python允许返回以逗号隔开的多个返回值，方便使用
++ PEP（Python Enhancement Proposals)Python改进提案
+
+## 第四章Numpy基础
++ 导入惯例：import numpy as np
++ 通用函数（universal function) ufunc 会对Numpy数组中的每个元素执行操作
++ axis=0 表示以行为轴，axis=1表示以列为轴
