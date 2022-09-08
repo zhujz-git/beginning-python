@@ -18,6 +18,9 @@ https://docs.python.org/zh-cn/3.8/index.html
 ## numpy
 [numpy官网](https://www.numpy.org.cn/)
 
+## pandas 
+https://pandas.pydata.org/docs/reference/index.html
+
 ## reportlab学习资料
 https://www.cnblogs.com/hujq1029/p/7767980.html
 

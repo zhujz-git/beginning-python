@@ -44,7 +44,7 @@ def set_dest_data(filename, user_info_map, vol_list, query_list):
         # 填充好标题行
         for i, vol_id in enumerate(vol_list):
             load_sheet['{}{}'.format(vol_id, key_vol)].value = query_list[i]
-            
+
         # 获取 行与列
         info = load_sheet.used_range
         nrow = info.last_cell.row
