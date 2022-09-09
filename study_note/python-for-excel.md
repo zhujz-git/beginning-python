@@ -32,4 +32,14 @@ python for excel 【瑞士】Felix Zumstein 著 冯黎 译
 - DataFrame的方法返回的是副本，需要将返回值赋值 例： df_xl = df_xl.set_index('时间')
 
 ## 第六章 使用pandas进行时序分析
-- 
+- 时序分析暂时还用不到，如果有金融或者其他领域的需求可以再深入了解
+
+## 第七章 实用pandas操作Excel文件
+- 遍历文件夹里的文件可以用 pathlib的 Path类 rglob方法（p127)
+- read_excel参数表格(p132) 
+- 写入有to_excel和ExcelWriter类
+
+## 第八章 实用读写包操作Excel文件
+第四部分内容暂时还用不到，略过了。
+2022-9-9
+
