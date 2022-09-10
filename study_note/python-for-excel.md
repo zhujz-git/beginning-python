@@ -30,6 +30,7 @@ python for excel 【瑞士】Felix Zumstein 著 冯黎 译
 - iloc(整数位置切片, 标准的半开半闭区间)
 - lambda表达式: lambda arg1, arg2,...:return_value
 - DataFrame的方法返回的是副本，需要将返回值赋值 例： df_xl = df_xl.set_index('时间')
+- DataFrame连接方法p95 concat,jion,merge
 
 ## 第六章 使用pandas进行时序分析
 - 时序分析暂时还用不到，如果有金融或者其他领域的需求可以再深入了解

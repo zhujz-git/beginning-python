@@ -1,5 +1,9 @@
 import xlrd
 import xlwings
+import pandas as pd
+import excel_pd
+
+
 
 
 # 查询excel文件里的数据，返回一个字典
@@ -28,6 +32,8 @@ def load_source_data(filename, key_vol, query_list):
 
     print('success query source data.')
     return user_info_map
+
+
 
 
 def set_dest_data(filename, user_info_map, vol_list, query_list):
@@ -74,30 +80,54 @@ def set_dest_data(filename, user_info_map, vol_list, query_list):
         return
     app.quit()
 
+# pandas版本 topleft_range:要写入的左上角单元格  index_col:关键字列次
+def set_dest_datafile_pd(filename, uinfo_df, topleft_range, index_col=0):
+    try:
+        # 默认查询关键字列在第一列
+        df_dest = pd.read_excel(filename, index_col=index_col, usecols=[index_col])
+        df_jion = df_dest.join(uinfo_df, how='left')
+        # 替换下nan字符
+        df_jion = df_jion.fillna({'法定代表人':'未查到该单位'})
+
+        app = xlwings.App(add_book=False)
+        workbook = app.books.open(filename)
+        load_sheet = workbook.sheets[0]
+        # 自动调整列宽
+        load_sheet.autofit('c')
+
+        load_sheet[topleft_range].options(index=False).value = df_jion
+
+        # 保存文件
+        workbook.save()
+        # 关闭工作表
+        workbook.close()
+        print('success set dest data file.')
+    except Exception as e:
+        print(e)
+        # 退出程序
+        app.quit()
+        return
+    app.quit()
 
 def query_market_excel():
     # 查询信息列，第一列为搜索键
-    key_vol = '企业名称'
-    query_list = ['法定代表人', '电话', '经营地址']
-    vol_list = ['I', 'J', 'K']
+    query_list = ['企业名称', '法定代表人', '电话', '经营地址']
+    topleft_range = 'I1'
 
-    user_info_map = {}
     # 原文件
     flist = [
-        './pydata/20220901/娄桥-房屋介绍2022.8.15.xls',
-        './pydata/20220901/娄桥-教育培训公司2022.8.15.xls',
-        './pydata/20220901/娄桥-装修装饰公司2022.8.15.xls',
-        './pydata/20220901/汽车销售-娄桥市场主体名单.xls'
+        './pandas_excel/xl/娄桥-房屋介绍2022.8.15.xls',
+        './pandas_excel/xl/娄桥-教育培训公司2022.8.15.xls',
+        './pandas_excel/xl/娄桥-装修装饰公司2022.8.15.xls',
+        './pandas_excel/xl/汽车销售-娄桥市场主体名单.xls'
     ]
     # 目标文件
-    set_filename = './pydata/20220901/名单汇总.xlsx'
+    set_filename = './pandas_excel/xl/名单汇总.xlsx'
 
     # 获取表格数据
-    for fname in flist:
-        user_info_map.update(load_source_data(fname, key_vol, query_list))
-
+    df_source = excel_pd.read_excel_pd(flist, query_list)
     # 根据源数据，写入目标文件
-    set_dest_data(set_filename, user_info_map, vol_list, query_list)
+    set_dest_datafile_pd(set_filename, df_source, topleft_range)
 
 
 if __name__ == '__main__':

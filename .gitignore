@@ -4,7 +4,6 @@
 *.xls
 __pycache__
 *.html
-*.dt
 *.pdf
 *.code-workspace
 *.wav
