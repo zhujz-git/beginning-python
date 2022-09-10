@@ -4,10 +4,14 @@ import xlwings
 import xlrd
 import get_user_filepath
 import os
+import pandas as pd
+import excel_pd as epd
 
 '''
-    根据设置好的.dt文件，生成组合商品列表，用于导入至ERP
+    根据设置好的.dt文件,生成组合商品列表,用于导入至ERP
 '''
+
+
 def read_comb_list(filepath):
     # 组合以start_combation 并指定组合尺码数量和总行数
     start_comb_pat = re.compile(r'\[start_combation\]:(\d+)%(\d+)')
@@ -167,9 +171,28 @@ def read_goods_info(filepath):
     return goods_data
 
 
+# 用pandas改进原来的函数
+def read_goods_info_pd(filepath):
+    query_list = ['商品编码', '商品名称',  '规格编码', '规格值2']
+
+    df_goods = pd.read_excel(filepath, usecols=query_list)
+    # 向下填充空白行
+    df_goods['商品名称'] = df_goods['商品名称'].ffill()
+    # 选取没有尺码的规格值，用来设置规格编码
+    tf = df_goods['规格值2'].notna()
+    # 将商品名称加上尺码信息
+    df_goods.loc[tf, '商品名称'] = df_goods.loc[tf,
+                                            '商品名称'] + df_goods.loc[tf, '规格值2']
+    # 没有尺码的规格编码都为空，直接设置为商品编码
+    tf = df_goods['规格编码'].isna()
+    df_goods.loc[tf, '规格编码'] = df_goods.loc[tf, '商品编码']
+    # 返回设置好的DataFrame
+    return df_goods.set_index('规格编码')['商品名称'].to_dict()
+
+
 # 使用命令行指定组合文件路径
 filepath = sys.argv[1]
-goods_data = read_goods_info(
+goods_data = read_goods_info_pd(
     os.path.expanduser(get_user_filepath.get_file_path() + '\\goodsinfo.xlsx'))
 
 comb_data = read_comb_list(

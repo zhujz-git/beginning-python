@@ -2,7 +2,8 @@ import sys
 import xlrd
 import xlwings
 import get_user_filepath
-import query_excel_info
+import excel_pd
+import pandas as pd
 
 '''
     将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
@@ -24,29 +25,21 @@ def lead_comb_info(filepath):
     return comb_info_list
 
 
-def check_comb_info(filepath, comb_id_name_list):
+def check_comb_info(filepath, df_comb):
     try:
+         # 默认查询关键字列在第一列
+        df_dest = pd.read_excel(filepath, index_col=0)
+        df_update = df_dest.append(df_comb).drop_duplicates(['组合商品名称']).dropna()
+        
+
         app = xlwings.App(add_book=False)
         workbook = app.books.open(filepath)
+        load_sheet = workbook.sheets[0]        
 
-        load_sheet = workbook.sheets[0]
-
-        # 获取 行与列
-        info = load_sheet.used_range
-        nrow = info.last_cell.row
-
-        range_val = load_sheet.range(
-            (2, 1),  # 获取 第2行 第1列
-            (nrow, 2)  # 获取 第 nrow 行 第 ncol 列
-        ).value
-        comb_data = {value[0]: value[1] for value in range_val}
-
-        row_num = nrow + 1
-        for comb_val in comb_id_name_list:
-            if comb_data.get(comb_val[0]) is None:
-                load_sheet['{}{}'.format('A', row_num)].value = comb_val[0]
-                load_sheet['{}{}'.format('B', row_num)].value = comb_val[1]
-                row_num += 1
+        load_sheet['A1'].value = df_update     
+        #格式复制  
+        #load_sheet['A2:B3'].copy()
+        #load_sheet.range('A2', load_sheet.used_range.last_cell).paste('formats')
 
         # 保存文件
         workbook.save()
@@ -62,10 +55,8 @@ def check_comb_info(filepath, comb_id_name_list):
 
 filepath = get_user_filepath.get_file_path_addmonth()
 filelist = [filepath + '\\combination_info1.xlsx']
-df_comb = query_market_userinfo.load_source_data(filelist, ['组合商品编码', '组合商品名称'])
-
-comb_info = lead_comb_info(filepath +
-                           '\\combination_info1.xlsx') 
+df_comb = excel_pd.read_excel_pd(filelist, ['组合商品编码', '组合商品名称'])
+df_comb.dropna()
 
 check_comb_info(filepath + '\\combination_weight.xlsx',
-                               comb_info)
+                               df_comb)

@@ -1,20 +1,10 @@
 import xlrd
 import xlwings
 import pandas as pd
+import excel_pd
 
 
-# 导入excel数据源 pandas版本 可以将多个文件合并
-def lead_excel_pd(flist, query_list, index_col=0):
-    '''
-        flist 文件列表或者可迭代对象
-        query_list  查询的列名称
-        index_col Index列名或者索引
-        返回一个合并的DataFrame
-    '''
-    df_list = []
-    for fname in flist:
-        df_list.append(pd.read_excel(fname, index_col=index_col, usecols=query_list))
-    return pd.concat(df_list)
+
 
 # 查询excel文件里的数据，返回一个字典
 def load_source_data(filename, key_vol, query_list):
@@ -135,7 +125,7 @@ def query_market_excel():
     set_filename = './pandas_excel/xl/名单汇总.xlsx'
 
     # 获取表格数据
-    df_source = lead_excel_pd(flist, query_list)
+    df_source = excel_pd.read_excel_pd(flist, query_list)
     # 根据源数据，写入目标文件
     set_dest_datafile_pd(set_filename, df_source, topleft_range)
 
