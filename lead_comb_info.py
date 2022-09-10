@@ -2,6 +2,7 @@ import sys
 import xlrd
 import xlwings
 import get_user_filepath
+import query_excel_info
 
 '''
     将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
@@ -60,6 +61,8 @@ def check_comb_info(filepath, comb_id_name_list):
 
 
 filepath = get_user_filepath.get_file_path_addmonth()
+filelist = [filepath + '\\combination_info1.xlsx']
+df_comb = query_market_userinfo.load_source_data(filelist, ['组合商品编码', '组合商品名称'])
 
 comb_info = lead_comb_info(filepath +
                            '\\combination_info1.xlsx') 
