@@ -13,7 +13,6 @@ def read_excel_pd(flist, query_list, index_col=0):
         index_col Index列名或者索引
         返回一个合并的DataFrame
     '''
-    df_list = []
-    for fname in flist:
-        df_list.append(pd.read_excel(fname, index_col=index_col, usecols=query_list))
+
+    df_list = [pd.read_excel(fname, index_col=index_col, usecols=query_list) for fname in flist]    
     return pd.concat(df_list)

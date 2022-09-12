@@ -120,7 +120,7 @@ def write_data_to_excel(filepath, comb_data, goods_data):
         return
     app.quit()
 
-
+# 老版本 留着参考
 def read_goods_info(filepath):
     workbook = xlrd.open_workbook(filepath)
     sheet1 = workbook.sheet_by_index(0)
@@ -177,15 +177,18 @@ def read_goods_info_pd(filepath):
 
     df_goods = pd.read_excel(filepath, usecols=query_list)
     # 向下填充空白行
-    df_goods['商品名称'] = df_goods['商品名称'].ffill()
+    df_goods['商品名称'].ffill(inplace=True)
+
     # 选取没有尺码的规格值，用来设置规格编码
     tf = df_goods['规格值2'].notna()
     # 将商品名称加上尺码信息
     df_goods.loc[tf, '商品名称'] = df_goods.loc[tf,
                                             '商品名称'] + df_goods.loc[tf, '规格值2']
+
     # 没有尺码的规格编码都为空，直接设置为商品编码
     tf = df_goods['规格编码'].isna()
     df_goods.loc[tf, '规格编码'] = df_goods.loc[tf, '商品编码']
+
     # 返回设置好的DataFrame
     return df_goods.set_index('规格编码')['商品名称'].to_dict()
 
