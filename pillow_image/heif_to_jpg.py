@@ -1,12 +1,11 @@
 from PIL import Image
 import pillow_heif
-import os
-import re
+import glob
 
 
 # 打开heif 转换成jpg
-def heif_to_image(dir, heic, filename):
-    heif_file = pillow_heif.read_heif(dir + '\\' + heic)
+def heif_to_image(dir, imgname, filename):
+    heif_file = pillow_heif.read_heif(filename)
     image = Image.frombytes(
         heif_file.mode,
         heif_file.size,
@@ -14,18 +13,12 @@ def heif_to_image(dir, heic, filename):
         "raw",
     )
 
-    image.save(dir + '\\' + filename + '.jpg', format("jpeg"))
-
-
-# 遍历文件夹下所有的heic文件
-def get_all_change(dir):
-    pat = re.compile('(.+)\.heic')
-    img_list = [(n, pat.match(n).group(1)) for n in list(os.walk(dir))[0][2]
-                if pat.match(n)]
-    for img in img_list:
-        heif_to_image(dir, img[0], img[1])
+    image.save(dir + '\\' + imgname + '.jpg', format("jpeg"))
 
 
 if __name__ == '__main__':
-    dir = 'D:\\娄桥市监所\\照片\\20220905 中土'
-    get_all_change(dir)
+    dir = 'D:\\娄桥市监所\\照片\\20220913 学校食堂检查'
+    for img in glob.glob(dir + '\\*.heic'):
+        # 获取文件名
+        img_name = img.split('\\')[-1].split('.')[0]
+        heif_to_image(dir, img_name, img)
