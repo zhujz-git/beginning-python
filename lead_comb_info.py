@@ -1,13 +1,11 @@
-import sys
 import xlrd
 import xlwings
-import get_user_filepath
-import excel_pd
 import pandas as pd
-
 '''
     将ERP里导出的组合商品信息，导入到组合商品信息列表，手工设置好重量
 '''
+
+
 def lead_comb_info(filepath):
     workbook = xlrd.open_workbook(filepath)
     sheet1 = workbook.sheet_by_index(0)
@@ -27,19 +25,26 @@ def lead_comb_info(filepath):
 
 def check_comb_info(filepath, df_comb):
     try:
-         # 默认查询关键字列在第一列
+        # 默认查询关键字列在第一列
         df_dest = pd.read_excel(filepath, index_col=0)
-        df_update = df_dest.append(df_comb).drop_duplicates(['组合商品名称']).dropna()
-        
+        # append 2次 可以达到df_update = df_comb - df_dest的差集
+        df_update = df_comb.append(df_dest).append(df_dest)
+        df_update.reset_index(inplace=True)
+        df_update.drop_duplicates(subset=['组合商品编码'], keep=False, inplace=True)
 
         app = xlwings.App(add_book=False)
         workbook = app.books.open(filepath)
-        load_sheet = workbook.sheets[0]        
+        load_sheet = workbook.sheets[0]
 
-        load_sheet['A1'].value = df_update     
-        #格式复制  
-        #load_sheet['A2:B3'].copy()
-        #load_sheet.range('A2', load_sheet.used_range.last_cell).paste('formats')
+        # 获取 行与列
+        info = load_sheet.used_range
+        nrow = info.last_cell.row + 1
+
+        load_sheet['A{}'.format(nrow)].options(header=False,
+                                               index=False).value = df_update
+        # 格式复制
+        # load_sheet['A2:B3'].copy()
+        # load_sheet.range('A2', load_sheet.used_range.last_cell).paste('formats')
 
         # 保存文件
         workbook.save()
@@ -53,10 +58,10 @@ def check_comb_info(filepath, df_comb):
     app.quit()
 
 
-filepath = get_user_filepath.get_file_path_addmonth()
-filelist = [filepath + '\\combination_info1.xlsx']
-df_comb = excel_pd.read_excel_pd(filelist, ['组合商品编码', '组合商品名称'])
-df_comb.dropna()
+filepath = './pydata/august/'
+filelist = filepath + '/combination_info1.xlsx'
+df_comb = pd.read_excel(filelist, usecols=['组合商品编码', '组合商品名称'])
+df_comb.dropna(inplace=True)
+df_comb.set_index('组合商品编码', inplace=True)
 
-check_comb_info(filepath + '\\combination_weight.xlsx',
-                               df_comb)
+check_comb_info(filepath + '\\combination_weight.xlsx', df_comb)
