@@ -7,7 +7,7 @@ https://docs.python.org/zh-cn/3.8/index.html
 [zhujz 仓库](https://github.com/zhujz-git/beginning-python)
 
 ## request
-[request官网](https://requests.readthedocs.io/en/latest/)
+[request官网] https://requests.readthedocs.io/en/latest/
 
 ## beautifulesoup
 [beautifulesoup官网]https://www.crummy.com/software/BeautifulSoup/
