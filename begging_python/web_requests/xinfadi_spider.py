@@ -1,10 +1,11 @@
 # 新发地蔬菜价格信息爬取
-from operator import truediv
-from time import sleep
+import imp
+from symbol import lambdef_nocond
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 import json
+import datetime
 
 
 def get_html_response(url):
@@ -12,7 +13,8 @@ def get_html_response(url):
     try:
         hd = {
             'user-agent':
-            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 \
+                (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ,
         }
         r = requests.get(url, headers=hd)
         r.encoding = 'utf-8'
@@ -35,7 +37,9 @@ def post_price_data(url, pdata):
             'Host': 'www.xinfadi.com.cn',
             'Origin': 'http://www.xinfadi.com.cn',
             'Referer': 'http://www.xinfadi.com.cn/priceDetail.html',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ,
             'X-Requested-With': 'XMLHttpRequest',
         }
         r = requests.post(url, data=pdata, headers=hd)
@@ -46,45 +50,65 @@ def post_price_data(url, pdata):
         print('爬取失败', e)
 
 
-xfdurl = 'http://www.xinfadi.com.cn/priceDetail.html'
-resp1 = get_html_response(xfdurl)
+# 从本地读入原来已导入的数据
+try:
+    xinfadi_pd = pd.read_pickle('xinfadi.pkl')
+except Exception as e:
+    print(e)
+    # 从主页查询列名
+    xfdurl = 'http://www.xinfadi.com.cn/priceDetail.html'
+    resp1 = get_html_response(xfdurl)
 
-soup = BeautifulSoup(resp1.text, 'html.parser')
-thead = soup.select('table thead tr th')
-tcolums = [i.string for i in thead]
+    soup = BeautifulSoup(resp1.text, 'html.parser')
+    thead = soup.select('table thead tr th')
+    tcolums = [i.string for i in thead]
+    xinfadi_pd = pd.DataFrame(columns=tcolums)
+
+# 查询缺失数据的时间间隔
+xinfadi_pd['发布日期'] = pd.to_datetime(xinfadi_pd['发布日期'])
+start_time = datetime.date(2020, 1, 1) if pd.isna(
+    xinfadi_pd['发布日期'].max()) else xinfadi_pd['发布日期'].max()
+#end_time = datetime.date.today()
+end_time = datetime.date(2020, 2, 2)
+
+# 然后查询总数
 gp_url = 'http://www.xinfadi.com.cn/getPriceData.html'
 pdata = {
     'limit': 20,
     'current': 1,
-    'pubDateStartTime': '',
-    'pubDateEndTime': '',
+    'pubDateStartTime': start_time.strftime('%Y/%m/%d'),
+    'pubDateEndTime': end_time.strftime('%Y/%m/%d'),
     'prodPcatid': '',
     'prodCatid': '',
-    'prodName': '阳光玫瑰',
+    'prodName': '',
 }
 get_price_r = post_price_data(gp_url, pdata)
 json_prod = json.loads(get_price_r.text)
 count = json_prod['count']
 
-server_colums = ['prodCat', 'prodPcat', 'prodName', 'lowPrice', 'highPrice', 'avgPrice', 'specInfo',  'place', 'unitInfo', 'pubDate']
-#prod_pd = pd.DataFrame(json_prod['list'])[server_colums]
-
-
-#count = 20000
+server_colums = [
+    'prodCat', 'prodPcat', 'prodName', 'lowPrice', 'highPrice', 'avgPrice',
+    'specInfo', 'place', 'unitInfo', 'pubDate'
+]
 limit = min(1000, count)
 
-current = 1 
+# 将所有数据查询出来
+current = 1
 pd_list = []
 pdata['limit'] = limit
-while(True):
+while (count > 0):
     pdata['current'] = current
     get_price_r = post_price_data(gp_url, pdata)
+    print(current)
     json_prod = json.loads(get_price_r.text)
     pd_list.append(pd.DataFrame(json_prod['list']))
-    if (current * limit)  > count:
-        break
-    current += 1 
-    
+
+    count -= limit
+    current += 1
 
 prod_pd = pd.concat(pd_list)[server_colums]
 prod_pd.columns = tcolums
+
+xinfadi_pd = pd.concat([xinfadi_pd, prod_pd])
+xinfadi_pd = xinfadi_pd.drop_duplicates().set_index('发布日期')
+xinfadi_pd.to_pickle('xinfadi.pkl')
