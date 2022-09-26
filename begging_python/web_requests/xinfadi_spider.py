@@ -63,7 +63,6 @@ except Exception as e:
     xinfadi_pd = pd.DataFrame(columns=tcolums)
 
 # 查询缺失数据的时间间隔
-xinfadi_pd['发布日期'] = pd.to_datetime(xinfadi_pd['发布日期'])
 start_time = datetime.date(2020, 1, 1) if pd.isna(
     xinfadi_pd['发布日期'].max()) else xinfadi_pd['发布日期'].max()
 #end_time = datetime.date.today()
@@ -106,7 +105,9 @@ while (count > 0):
 
 prod_pd = pd.concat(pd_list)[server_colums]
 prod_pd.columns = tcolums
+prod_pd.set_index('发布日期')
 
 xinfadi_pd = pd.concat([xinfadi_pd, prod_pd])
+xinfadi_pd['发布日期'] = pd.to_datetime(xinfadi_pd['发布日期'])
 xinfadi_pd = xinfadi_pd.drop_duplicates().set_index('发布日期')
 xinfadi_pd.to_pickle('xinfadi.pkl')
