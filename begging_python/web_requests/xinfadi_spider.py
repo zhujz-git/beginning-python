@@ -1,6 +1,4 @@
 # 新发地蔬菜价格信息爬取
-import imp
-from symbol import lambdef_nocond
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
