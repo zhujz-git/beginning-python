@@ -12,7 +12,7 @@ def get_html_response(url):
         hd = {
             'user-agent':
             'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 \
-                (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ,
+                (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ,
         }
         r = requests.get(url, headers=hd)
         r.encoding = 'utf-8'
@@ -37,7 +37,7 @@ def post_price_data(url, pdata):
             'Referer': 'http://www.xinfadi.com.cn/priceDetail.html',
             'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      ,
+                Chrome/86.0.4240.198 Safari/537.36'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ,
             'X-Requested-With': 'XMLHttpRequest',
         }
         r = requests.post(url, data=pdata, headers=hd)
@@ -61,12 +61,14 @@ except Exception as e:
     thead = soup.select('table thead tr th')
     tcolums = [i.string for i in thead]
     xinfadi_pd = pd.DataFrame(columns=tcolums)
+    xinfadi_pd.set_index(tcolums[-1], inplace=True)
+    # index设置为日期类型
+    xinfadi_pd.index = pd.to_datetime(xinfadi_pd.index)
 
 # 查询缺失数据的时间间隔
 start_time = datetime.date(2020, 1, 1) if pd.isna(
-    xinfadi_pd['发布日期'].max()) else xinfadi_pd['发布日期'].max()
-#end_time = datetime.date.today()
-end_time = datetime.date(2020, 2, 2)
+    xinfadi_pd.index.max()) else xinfadi_pd.index.max()
+end_time = datetime.date.today()
 
 # 然后查询总数
 gp_url = 'http://www.xinfadi.com.cn/getPriceData.html'
@@ -96,18 +98,30 @@ pdata['limit'] = limit
 while (count > 0):
     pdata['current'] = current
     get_price_r = post_price_data(gp_url, pdata)
-    print(current)
     json_prod = json.loads(get_price_r.text)
+    print('get price data:', json_prod['current'], json_prod['limit'],
+          json_prod['count'])
     pd_list.append(pd.DataFrame(json_prod['list']))
 
     count -= limit
     current += 1
 
+# 将所有数据合并
 prod_pd = pd.concat(pd_list)[server_colums]
-prod_pd.columns = tcolums
-prod_pd.set_index('发布日期')
 
+# 设置发布日期为index
+index_name = xinfadi_pd.index.name
+new_columns = xinfadi_pd.columns.to_list()
+new_columns.append(index_name)
+prod_pd.columns = new_columns
+prod_pd.set_index(index_name, inplace=True)
+
+# index设置为日期类型
+prod_pd.index = pd.to_datetime(prod_pd.index)
+
+# 将新查询的跟保存的数据合并后保存到文件
 xinfadi_pd = pd.concat([xinfadi_pd, prod_pd])
-xinfadi_pd['发布日期'] = pd.to_datetime(xinfadi_pd['发布日期'])
-xinfadi_pd = xinfadi_pd.drop_duplicates().set_index('发布日期')
+xinfadi_pd = xinfadi_pd.reset_index().drop_duplicates().set_index(index_name)
 xinfadi_pd.to_pickle('xinfadi.pkl')
+
+
