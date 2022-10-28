@@ -194,7 +194,8 @@ cookies = [
         'sameSite': 'None',
         'secure': True,
         'value': '7X7iG6hBfkUCAX1u4JD8ZSdn'}]
-
+#https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
+#https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
 browser = webdriver.Edge()
 browser.get(
     'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo=1')
