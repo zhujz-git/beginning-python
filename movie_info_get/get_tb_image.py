@@ -205,16 +205,15 @@ def get_item_browser():
             'sameSite': 'None',
             'secure': True,
             'value': '7X7iG6hBfkUCAX1u4JD8ZSdn'}]
-    #https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
-    #https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
+    # https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
+    # https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
     browser = webdriver.Edge(executable_path='msedgedriver.exe')
     browser.get('https://papa.tmall.com')
-    wait = WebDriverWait(browser, 10)
+
     for item in cookies:
         browser.add_cookie(item)
 
     return browser
-
 
 
 # 设置统一的请求头
@@ -226,6 +225,7 @@ def get_html_head():
         'gr_user_id=06b268dc-f2af-472f-8d75-95dc7c0863c3; __utmv=30149280.4252; douban-fav-remind=1; bid=-rbqx6M9uZ8; __gads=ID=e60f97d8cddcc79d-2242122ac2d500e1:T=1661320700:RT=1661320700:S=ALNI_MbzwyBCrDyDaOaPn9lMF4au9Nn_2Q; ll="118174"; __utmc=30149280; dbcl2="42521702:5nS0bXkYJr0"; ck=pllS; frodotk="54a1ce10192d170cfde56a304b874524"; __utma=30149280.470231712.1617176844.1661836107.1661911542.30; __utmb=30149280.0.10.1661911542; __utmz=30149280.1661911542.30.5.utmcsr=accounts.douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/passport/login; __gpi=UID=000008fa6e8a48e4:T=1661320700:RT=1661911542:S=ALNI_MZrbfTwN0pFnmvL3ivykafmoE3P4w; push_noty_num=0; push_doumail_num=0',
     }
     return hd
+
 
 # 获取一个response
 def get_html_response(url):
@@ -258,17 +258,18 @@ def down_web_image(url, root):
     except Exception as e:
         print('爬取失败', e)
 
-if __name__ == '__main__':
-    browser = get_item_browser()
-    wait = WebDriverWait(browser, 10)
-
-    browser.get(
-        'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo=1'
-    )
+def down_item_img(browser, wait, page_no):
+    search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
+    browser.get(search_url + str(page_no))
+    for i in range(10):
+        browser.find_element_by_tag_name('body').send_keys(Keys.END)
+        sleep(1)
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button')))
 
     html = browser.page_source
     bs = BeautifulSoup(html, 'html.parser')
     url_list = []
+    img_root = './image/'
 
     for item in bs.find_all('dd', 'detail'):
         url_list.append(item.a['href'])
@@ -283,8 +284,27 @@ if __name__ == '__main__':
                 (By.CSS_SELECTOR, '.descV8-singleImage')))
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
+        main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
+        origin_price = bs.find(class_=re.compile('Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+        extra_price = bs.find(class_=re.compile('Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
+        dir_name = main_title + '-' + origin_price + '-' + dir + '\'
+        item_dir = img_root + dir_name
+        os.mkdir(item_dir)
+        main_pics = bs.find(class_=re.compile('PicGallery--thumbnails')).find_all('li')
+        for main_pic in main_pics:
+            img_src = main_pic.img['src']
+            print('https:'+img_src.partition('jpg')[0]+'jpg')
+            down_web_image(img_url,item_dir)
+
         for image in bs.find_all('div', 'descV8-singleImage'):
-            img_url = image.img['src']
+            img_url = 'https:' + image.img['src']
+            if img_url.find('getAvatar=avatar') > 0:
+                continue
             print(img_url)
-            down_web_image(img_url, './image/')
-        break
+            down_web_image(img_url,item_dir)
+        
+
+if __name__ == '__main__':
+    browser = get_item_browser()
+    wait = WebDriverWait(browser, 10)
+
