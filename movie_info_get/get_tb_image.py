@@ -313,7 +313,7 @@ def down_item_img(browser, downed_list, page_no):
                 'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
         except AttributeError:
             extra_price = origin_price
-        dir_name = main_title + '-' + item_id + '-' + origin_price + '-' + extra_price + '/'
+        dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
 
         #主图
         item_dir = img_root + dir_name
