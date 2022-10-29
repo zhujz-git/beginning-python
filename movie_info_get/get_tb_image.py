@@ -3,29 +3,29 @@ from bs4 import BeautifulSoup
 import os
 from time import sleep
 import requests
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
+import re
 
 
 def get_item_browser():
     cookies = [
         {'domain': '.tmall.com',
-        'expiry': 1682497469,
-        'httpOnly': False,
-        'name': 'tfstk',
-        'path': '/',
-        'secure': False,
-        'value': 'ct4PBgv1FaQycIPdBq0U7go0elpRZkz3zEkrq92NmaUwi2oliApKiUzogxR2K0f..'},
+         'expiry': 1682497469,
+         'httpOnly': False,
+         'name': 'tfstk',
+         'path': '/',
+         'secure': False,
+         'value': 'ct4PBgv1FaQycIPdBq0U7go0elpRZkz3zEkrq92NmaUwi2oliApKiUzogxR2K0f..'},
         {'domain': 'papa.tmall.com',
-        'expiry': 1698481471,
-        'httpOnly': False,
-        'name': 'cq',
-        'path': '/',
-        'secure': False,
-        'value': 'ccp%3D0'},
+         'expiry': 1698481471,
+         'httpOnly': False,
+         'name': 'cq',
+         'path': '/',
+         'secure': False,
+         'value': 'ccp%3D0'},
         {'domain': '.tmall.com',
             'httpOnly': False,
             'name': 'uc1',
@@ -208,6 +208,7 @@ def get_item_browser():
     # https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
     # https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
     browser = webdriver.Edge(executable_path='msedgedriver.exe')
+    browser.maximize_window()
     browser.get('https://papa.tmall.com')
 
     for item in cookies:
@@ -240,9 +241,11 @@ def get_html_response(url):
         print('爬取失败', e)
 
 
-def down_web_image(url, root):
+def down_web_image(url, root, filename):
     try:
-        path = root + url.split('/')[-1]
+        if url[:6] != 'https:' :
+                url = 'https:' + url
+        path = root + filename
         if not os.path.exists(root):
             os.mkdir(root)
         if not os.path.exists(path):
@@ -250,7 +253,7 @@ def down_web_image(url, root):
             with open(path, 'wb') as f:
                 f.write(r.content)
                 f.close()
-                print('success download image:{}'.format(path))
+                print('success download image:{}, filename:{}'.format(url, path))
                 return path
         else:
             print('image is alread exist:{}'.format(path))
@@ -258,13 +261,17 @@ def down_web_image(url, root):
     except Exception as e:
         print('爬取失败', e)
 
-def down_item_img(browser, wait, page_no):
+
+def down_item_img(browser, page_no):
     search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
     browser.get(search_url + str(page_no))
     for i in range(10):
-        browser.find_element_by_tag_name('body').send_keys(Keys.END)
+        browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
         sleep(1)
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button')))
+
+    for i in range(10):
+        browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
+        sleep(1)
 
     html = browser.page_source
     bs = BeautifulSoup(html, 'html.parser')
@@ -276,35 +283,59 @@ def down_item_img(browser, wait, page_no):
 
     for url in url_list:
         browser.get('https:' + url)
-        for i in range(10):
-            browser.find_element_by_tag_name('body').send_keys(Keys.END)
+        sleep(5)
+
+        for i in range(30):
+            browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             sleep(1)
-        wait.until(
-            EC.presence_of_all_elements_located(
-                (By.CSS_SELECTOR, '.descV8-singleImage')))
+
+       
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
         main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
-        origin_price = bs.find(class_=re.compile('Price--originPrice')).find(class_=re.compile('Price--priceText')).string
-        extra_price = bs.find(class_=re.compile('Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
-        dir_name = main_title + '-' + origin_price + '-' + dir + '\'
+        origin_price = bs.find(class_=re.compile(
+            'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+        extra_price = bs.find(class_=re.compile(
+            'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
+        dir_name = main_title + '-' + origin_price + '-' + extra_price + '/'
         item_dir = img_root + dir_name
-        os.mkdir(item_dir)
-        main_pics = bs.find(class_=re.compile('PicGallery--thumbnails')).find_all('li')
-        for main_pic in main_pics:
-            img_src = main_pic.img['src']
-            print('https:'+img_src.partition('jpg')[0]+'jpg')
-            down_web_image(img_url,item_dir)
-
-        for image in bs.find_all('div', 'descV8-singleImage'):
-            img_url = 'https:' + image.img['src']
-            if img_url.find('getAvatar=avatar') > 0:
-                continue
-            print(img_url)
-            down_web_image(img_url,item_dir)
+        main_pics = bs.find(class_=re.compile(
+            'PicGallery--thumbnails')).find_all('li')
         
+        #主图
+        for n, main_pic in enumerate(main_pics, 1):
+            img_src = main_pic.img['src']
+            img_url = img_src.partition('jpg')[0]+'jpg'
+            down_web_image(img_url, item_dir, '主图{}.jpg'.format(n))
+
+        #想上翻10次 尽量显示全
+        for i in range(30):
+            browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
+            sleep(1)
+        #详情页第一种
+        n = 1
+        for image in bs.find_all('div', 'descV8-singleImage'):
+            img_url = image.img['src']
+            if img_url.find('getAvatar=avatar') > 0:
+                continue        
+            down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+            n += 1
+
+        #详情页
+        richtext = bs.find('div', 'descV8-richtext')
+        n = 1
+        if richtext:
+            for image in richtext.select('div > img.lazyload'):
+                img_url = image['src']
+                if img_url.find('getAvatar=avatar') > 0:
+                    continue        
+                if img_url[-4:]== '.gif':
+                    continue  
+                down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+                n += 1
+        
+
 
 if __name__ == '__main__':
     browser = get_item_browser()
-    wait = WebDriverWait(browser, 10)
-
+    down_item_img(browser, 1)
