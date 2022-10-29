@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 import re
+import json
 
 
 def get_item_browser():
@@ -262,9 +263,11 @@ def down_web_image(url, root, filename):
         print('爬取失败', e)
 
 
-def down_item_img(browser, page_no):
-    search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
+def down_item_img(browser, downed_list, page_no):
+    search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='    
     browser.get(search_url + str(page_no))
+
+    # 打开网页后上下刷新几次
     for i in range(10):
         browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
         sleep(1)
@@ -278,37 +281,50 @@ def down_item_img(browser, page_no):
     url_list = []
     img_root = './image/'
 
+    # 找出所有页面链接
     for item in bs.find_all('dd', 'detail'):
         url_list.append(item.a['href'])
 
     for url in url_list:
+        # 打开网页后拉倒最底下
         browser.get('https:' + url)
         sleep(5)
-
         for i in range(30):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             sleep(1)
 
-       
+        # 开始分析网页
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
+
+        pat = re.compile('id=(\d+)')
+        item_id = pat.findall(url)
+        # 已经下载过的不重复下载了
+        if item_id in downed_list:
+            continue
+        bdown = False
+
+        # 拼出文件夹名字
         main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
         origin_price = bs.find(class_=re.compile(
             'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
-        extra_price = bs.find(class_=re.compile(
-            'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
-        dir_name = main_title + '-' + origin_price + '-' + extra_price + '/'
+        try:
+            extra_price = bs.find(class_=re.compile(
+                'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
+        except AttributeError:
+            extra_price = origin_price
+        dir_name = main_title + '-' + item_id + '-' + origin_price + '-' + extra_price + '/'
+
+        #主图
         item_dir = img_root + dir_name
         main_pics = bs.find(class_=re.compile(
-            'PicGallery--thumbnails')).find_all('li')
-        
-        #主图
+            'PicGallery--thumbnails')).find_all('li') 
         for n, main_pic in enumerate(main_pics, 1):
             img_src = main_pic.img['src']
             img_url = img_src.partition('jpg')[0]+'jpg'
             down_web_image(img_url, item_dir, '主图{}.jpg'.format(n))
 
-        #想上翻10次 尽量显示全
+        #向上翻10次 尽量显示全
         for i in range(30):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
             sleep(1)
@@ -320,8 +336,9 @@ def down_item_img(browser, page_no):
                 continue        
             down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
             n += 1
+            bdown = True
 
-        #详情页
+        #详情页第二种
         richtext = bs.find('div', 'descV8-richtext')
         n = 1
         if richtext:
@@ -333,9 +350,22 @@ def down_item_img(browser, page_no):
                     continue  
                 down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
                 n += 1
-        
+                bdown = True
+        # 放入已下载链接
+        if bdown:
+            downed_list.append(item_id)
 
 
 if __name__ == '__main__':
+    json_file = './json/downed_item_list.json'
+    try:
+        with open(json_file, 'r') as file:
+            downed_list = json.load(file)
+    except FileNotFoundError:
+        downed_list = []
     browser = get_item_browser()
-    down_item_img(browser, 1)
+    try:
+        down_item_img(browser, downed_list,  1)
+    finally:
+        with open(json_file, 'w') as file:
+            json.dump(downed_list, file, indent=2)
