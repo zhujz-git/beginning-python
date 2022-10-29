@@ -245,7 +245,7 @@ def get_html_response(url):
 def down_web_image(url, root, filename):
     try:
         if url[:6] != 'https:' :
-                url = 'https:' + url
+            url = 'https:' + url
         path = root + filename
         if not os.path.exists(root):
             os.mkdir(root)
@@ -263,8 +263,8 @@ def down_web_image(url, root, filename):
         print('爬取失败', e)
 
 
-def down_item_img(browser, downed_list, page_no):
-    search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='    
+def down_item_img(browser, page_no):
+    search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
     browser.get(search_url + str(page_no))
 
     # 打开网页后上下刷新几次
@@ -297,12 +297,8 @@ def down_item_img(browser, downed_list, page_no):
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
 
-        pat = re.compile('id=(\d+)')
-        item_id = pat.findall(url)
-        # 已经下载过的不重复下载了
-        if item_id in downed_list:
-            continue
-        bdown = False
+        #pat = re.compile('id=(\d+)')
+        #item_id = pat.findall(url)
 
         # 拼出文件夹名字
         main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
@@ -314,11 +310,15 @@ def down_item_img(browser, downed_list, page_no):
         except AttributeError:
             extra_price = origin_price
         dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
+        item_dir = img_root + dir_name
+
+        if os.path.exists(item_dir):
+            print('{} 已经下载过，跳过'.format(dir_name))
+            continue
 
         #主图
-        item_dir = img_root + dir_name
         main_pics = bs.find(class_=re.compile(
-            'PicGallery--thumbnails')).find_all('li') 
+            'PicGallery--thumbnails')).find_all('li')
         for n, main_pic in enumerate(main_pics, 1):
             img_src = main_pic.img['src']
             img_url = img_src.partition('jpg')[0]+'jpg'
@@ -333,10 +333,9 @@ def down_item_img(browser, downed_list, page_no):
         for image in bs.find_all('div', 'descV8-singleImage'):
             img_url = image.img['src']
             if img_url.find('getAvatar=avatar') > 0:
-                continue        
+                continue
             down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
             n += 1
-            bdown = True
 
         #详情页第二种
         richtext = bs.find('div', 'descV8-richtext')
@@ -345,27 +344,15 @@ def down_item_img(browser, downed_list, page_no):
             for image in richtext.select('div > img.lazyload'):
                 img_url = image['src']
                 if img_url.find('getAvatar=avatar') > 0:
-                    continue        
+                    continue
                 if img_url[-4:]== '.gif':
-                    continue  
+                    continue
                 down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
                 n += 1
-                bdown = True
-        # 放入已下载链接
-        if bdown:
-            downed_list.append(item_id)
 
 
 if __name__ == '__main__':
-    json_file = './json/downed_item_list.json'
-    try:
-        with open(json_file, 'r') as file:
-            downed_list = json.load(file)
-    except FileNotFoundError:
-        downed_list = []
+
     browser = get_item_browser()
-    try:
-        down_item_img(browser, downed_list,  1)
-    finally:
-        with open(json_file, 'w') as file:
-            json.dump(downed_list, file, indent=2)
+    down_item_img(browser, 1)
+   
