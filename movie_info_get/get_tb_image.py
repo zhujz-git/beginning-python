@@ -254,7 +254,7 @@ def down_web_image(url, root, filename):
             with open(path, 'wb') as f:
                 f.write(r.content)
                 f.close()
-                print('success download image:{}, filename:{}'.format(url, path))
+                #print('success download image:{}, filename:{}'.format(url, path))
                 return path
         else:
             print('image is alread exist:{}'.format(path))
@@ -262,8 +262,8 @@ def down_web_image(url, root, filename):
     except Exception as e:
         print('爬取失败', e)
 
-
-def down_item_img(browser, page_no):
+#下载页面中的所有宝贝图片
+def down_page_item_img(browser, page_no):
     search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
     browser.get(search_url + str(page_no))
 
@@ -281,13 +281,44 @@ def down_item_img(browser, page_no):
     url_list = []
     img_root = './image/'
 
+    restored_item_list = get_restored_item(img_root)
     # 找出所有页面链接
     for item in bs.find_all('dd', 'detail'):
+        if is_restored(restored_item_list, item.a.string.rstrip()):
+            print(item.a.string + '已经下载过，跳过，要重新下载请删除文件夹')
+            continue
         url_list.append(item.a['href'])
+        
 
-    for url in url_list:
+    for n, url in enumerate(url_list, start=1):
+        print('开始下载第{}个宝贝，总数：{}'.format(n, len(url_list)))
+        down_item_img(browser, url, img_root, restored_item_list) 
+
+# 遍历已经下载的文件夹
+def get_restored_item(dir):
+    return list(os.walk(dir))[0][1]
+
+def is_restored(ilist, item):
+    for i in ilist:
+        if item in i:
+            return True
+    return False
+
+# 单独下载一个页面
+def down_item_img(browser, url, img_root, restored_item_list):
+        if url[:6] != 'https:' :
+            url = 'https:' + url
         # 打开网页后拉倒最底下
-        browser.get('https:' + url)
+        browser.get(url)
+        html = browser.page_source
+        bs = BeautifulSoup(html, 'html.parser')
+        # 拼出文件夹名字
+        main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
+        # 判断是否已经下载了
+        if is_restored(restored_item_list, main_title):
+            print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
+            return 
+
         sleep(5)
         for i in range(30):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
@@ -296,12 +327,6 @@ def down_item_img(browser, page_no):
         # 开始分析网页
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
-
-        #pat = re.compile('id=(\d+)')
-        #item_id = pat.findall(url)
-
-        # 拼出文件夹名字
-        main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
         origin_price = bs.find(class_=re.compile(
             'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
         try:
@@ -311,10 +336,6 @@ def down_item_img(browser, page_no):
             extra_price = origin_price
         dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
         item_dir = img_root + dir_name
-
-        if os.path.exists(item_dir):
-            print('{} 已经下载过，跳过'.format(dir_name))
-            continue
 
         #主图
         main_pics = bs.find(class_=re.compile(
@@ -328,9 +349,12 @@ def down_item_img(browser, page_no):
         for i in range(30):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
             sleep(1)
+
+        html = browser.page_source
+        bs = BeautifulSoup(html, 'html.parser')
         #详情页第一种
         n = 1
-        for image in bs.find_all('div', 'descV8-singleImage'):
+        for image in bs.find_all('div', 'descV8-singleImage'):            
             img_url = image.img['src']
             if img_url.find('getAvatar=avatar') > 0:
                 continue
@@ -350,9 +374,16 @@ def down_item_img(browser, page_no):
                 down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
                 n += 1
 
+        #详情页第3种
+        n = 1
+        for img in bs.find_all('img', 'descV6-mobile-image lazyload'):            
+            img_url = img['src']
+            if img_url.find('getAvatar=avatar') > 0:
+                continue
+            down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+            n += 1
 
 if __name__ == '__main__':
-
     browser = get_item_browser()
-    down_item_img(browser, 1)
-   
+    for i in range(2,11):
+        down_page_item_img(browser, i)
