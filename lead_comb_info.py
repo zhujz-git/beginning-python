@@ -58,7 +58,7 @@ def check_comb_info(filepath, df_comb):
     app.quit()
 
 
-filepath = './pydata/august/'
+filepath = './pydata/september/'
 filelist = filepath + '/combination_info1.xlsx'
 df_comb = pd.read_excel(filelist, usecols=['组合商品编码', '组合商品名称'])
 df_comb.dropna(inplace=True)
