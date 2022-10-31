@@ -327,8 +327,12 @@ def down_item_img(browser, url, img_root, restored_item_list):
         # 开始分析网页
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
-        origin_price = bs.find(class_=re.compile(
-            'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+        try:
+            origin_price = bs.find(class_=re.compile(
+                'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+        except AttributeError:
+            origin_price = ''
+            
         try:
             extra_price = bs.find(class_=re.compile(
                 'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
@@ -385,5 +389,5 @@ def down_item_img(browser, url, img_root, restored_item_list):
 
 if __name__ == '__main__':
     browser = get_item_browser()
-    for i in range(2,11):
+    for i in range(4,26):
         down_page_item_img(browser, i)
