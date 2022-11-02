@@ -9,6 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 import re
 import json
+import pandas as pd
 
 
 def get_item_browser():
@@ -288,11 +289,11 @@ def down_page_item_img(browser, page_no):
             print(item.a.string + '已经下载过，跳过，要重新下载请删除文件夹')
             continue
         url_list.append(item.a['href'])
-        
+
 
     for n, url in enumerate(url_list, start=1):
         print('开始下载第{}个宝贝，总数：{}'.format(n, len(url_list)))
-        down_item_img(browser, url, img_root, restored_item_list) 
+        down_item_img(browser, url, img_root, restored_item_list)
 
 # 遍历已经下载的文件夹
 def get_restored_item(dir):
@@ -306,93 +307,127 @@ def is_restored(ilist, item):
 
 # 单独下载一个页面
 def down_item_img(browser, url, img_root, restored_item_list):
-        if url[:6] != 'https:' :
-            url = 'https:' + url
-        # 打开网页后拉倒最底下
-        browser.get(url)
-        sleep(5)
-        html = browser.page_source
-        bs = BeautifulSoup(html, 'html.parser')
-        # 拼出文件夹名字
-        try:
-            main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
-        except AttributeError:
-            # 标题错误就跳过
-            return 
-        # 判断是否已经下载了
-        if is_restored(restored_item_list, main_title):
-            print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
-            return 
+    if url[:6] != 'https:' :
+        url = 'https:' + url
+    # 打开网页后拉倒最底下
+    browser.get(url)
+    sleep(5)
+    html = browser.page_source
+    bs = BeautifulSoup(html, 'html.parser')
+    # 拼出文件夹名字
+    try:
+        main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
+    except AttributeError:
+        # 标题错误就跳过
+        return
+    # 判断是否已经下载了
+    if is_restored(restored_item_list, main_title):
+        print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
+        return
 
-        
-        for i in range(30):
+
+    for i in range(30):
+        browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
+        sleep(1)
+
+    # 开始分析网页
+    html = browser.page_source
+    bs = BeautifulSoup(html, 'html.parser')
+    try:
+        origin_price = bs.find(class_=re.compile(
+            'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+    except AttributeError:
+        origin_price = ''
+
+    try:
+        extra_price = bs.find(class_=re.compile(
+            'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
+    except AttributeError:
+        extra_price = origin_price
+    dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
+    item_dir = img_root + dir_name
+
+    #主图
+    main_pics = bs.find(class_=re.compile(
+        'PicGallery--thumbnails')).find_all('li')
+    for n, main_pic in enumerate(main_pics, 1):
+        img_src = main_pic.img['src']
+        img_url = img_src.partition('jpg')[0]+'jpg'
+        down_web_image(img_url, item_dir, '主图{}.jpg'.format(n))
+
+    #向上翻10次 尽量显示全
+    for i in range(30):
+        browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
+        sleep(1)
+
+    html = browser.page_source
+    bs = BeautifulSoup(html, 'html.parser')
+    #详情页第一种
+    n = 1
+    for image in bs.find_all('div', 'descV8-singleImage'):
+        img_url = image.img['src']
+        if img_url.find('getAvatar=avatar') > 0:
+            continue
+        down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+        n += 1
+
+    #详情页第二种
+    richtext = bs.find('div', 'descV8-richtext')
+    n = 1
+    if richtext:
+        for image in richtext.select('div > img.lazyload'):
+            img_url = image['src']
+            if img_url.find('getAvatar=avatar') > 0:
+                continue
+            if img_url[-4:]== '.gif':
+                continue
+            down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+            n += 1
+
+    #详情页第3种
+    n = 1
+    for img in bs.find_all('img', 'descV6-mobile-image lazyload'):
+        img_url = img['src']
+        if img_url.find('getAvatar=avatar') > 0:
+            continue
+        down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
+        n += 1
+
+def get_item_list(browser):
+    pd_item = pd.DataFrame(columns=['id', 'url', 'title', 'flag'])
+    for i in range(1, 17):
+        search_url = 'https://papa.tmall.com/category.htm?search=y&orderType=newOn_desc&pageNo='
+        browser.get(search_url + str(i))
+
+        # 打开网页后上下刷新几次
+        for i in range(10):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             sleep(1)
 
-        # 开始分析网页
-        html = browser.page_source
-        bs = BeautifulSoup(html, 'html.parser')
-        try:
-            origin_price = bs.find(class_=re.compile(
-                'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
-        except AttributeError:
-            origin_price = ''
-
-        try:
-            extra_price = bs.find(class_=re.compile(
-                'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
-        except AttributeError:
-            extra_price = origin_price
-        dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
-        item_dir = img_root + dir_name
-
-        #主图
-        main_pics = bs.find(class_=re.compile(
-            'PicGallery--thumbnails')).find_all('li')
-        for n, main_pic in enumerate(main_pics, 1):
-            img_src = main_pic.img['src']
-            img_url = img_src.partition('jpg')[0]+'jpg'
-            down_web_image(img_url, item_dir, '主图{}.jpg'.format(n))
-
-        #向上翻10次 尽量显示全
-        for i in range(30):
+        for i in range(10):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_UP)
             sleep(1)
 
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
-        #详情页第一种
-        n = 1
-        for image in bs.find_all('div', 'descV8-singleImage'):            
-            img_url = image.img['src']
-            if img_url.find('getAvatar=avatar') > 0:
-                continue
-            down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
-            n += 1
+        # 找出所有页面链接
+        pat = re.compile('id=(\d+)&')
+        for item in bs.find_all('dd', 'detail'):
+            item_string = item.a.string.rstrip()
+            item_url = item.a['href']
+            item_id = pat.findall(item_url)[0]
+            pd_item.loc[pd_item.shape[0] + 1] = {
+                'id': item_id,
+                'url': item_url,
+                'title': item_string,
+                'flag': False
+            }
+    pd_item.to_pickle('./pkl/item.pkl')
 
-        #详情页第二种
-        richtext = bs.find('div', 'descV8-richtext')
-        n = 1
-        if richtext:
-            for image in richtext.select('div > img.lazyload'):
-                img_url = image['src']
-                if img_url.find('getAvatar=avatar') > 0:
-                    continue
-                if img_url[-4:]== '.gif':
-                    continue
-                down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
-                n += 1
-
-        #详情页第3种
-        n = 1
-        for img in bs.find_all('img', 'descV6-mobile-image lazyload'):            
-            img_url = img['src']
-            if img_url.find('getAvatar=avatar') > 0:
-                continue
-            down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
-            n += 1
 
 if __name__ == '__main__':
     browser = get_item_browser()
-    for i in range(0,26):
-        down_page_item_img(browser, i)
+    get_item_list(browser)
+    #pd_item = pd.read_pickle('./pkl/item.pkl')
+# for i in range(0,26):
+#     down_page_item_img(browser, i)
