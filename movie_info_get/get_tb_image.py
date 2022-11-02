@@ -310,16 +310,21 @@ def down_item_img(browser, url, img_root, restored_item_list):
             url = 'https:' + url
         # 打开网页后拉倒最底下
         browser.get(url)
+        sleep(5)
         html = browser.page_source
         bs = BeautifulSoup(html, 'html.parser')
         # 拼出文件夹名字
-        main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
+        try:
+            main_title = bs.find(class_=re.compile('ItemHeader--mainTitle')).string
+        except AttributeError:
+            # 标题错误就跳过
+            return 
         # 判断是否已经下载了
         if is_restored(restored_item_list, main_title):
             print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
             return 
 
-        sleep(5)
+        
         for i in range(30):
             browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
             sleep(1)
@@ -332,7 +337,7 @@ def down_item_img(browser, url, img_root, restored_item_list):
                 'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
         except AttributeError:
             origin_price = ''
-            
+
         try:
             extra_price = bs.find(class_=re.compile(
                 'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
@@ -389,5 +394,5 @@ def down_item_img(browser, url, img_root, restored_item_list):
 
 if __name__ == '__main__':
     browser = get_item_browser()
-    for i in range(4,26):
+    for i in range(0,26):
         down_page_item_img(browser, i)
