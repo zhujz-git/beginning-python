@@ -424,6 +424,21 @@ def get_item_list(browser):
             }
     pd_item.to_pickle('./pkl/item.pkl')
 
+def check_img_dir():
+    # 遍历文件夹，删除没下载成功的图片
+    iter_dir = os.walk('./image/')
+    root, title_names, filenames = iter_dir.__next__()
+    for root, dir_names, filenames in iter_dir:
+        for fname in filenames:
+            fpath = os.path.join(root, fname)
+            fsize = os.path.getsize(fpath)
+            if fsize < 100:
+                os.remove(fpath)
+                print('delete file:', fpath)
+
+    pd_item = pd.read_pickle('./pkl/item.pkl')
+    for idx, data in pd_item.iterrows():
+        title = data['title']
 
 if __name__ == '__main__':
     browser = get_item_browser()
