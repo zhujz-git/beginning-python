@@ -17,7 +17,7 @@ def heif_to_image(dir, imgname, filename):
 
 
 if __name__ == '__main__':
-    dir = 'D:\\娄桥市监所\\照片\\20221026 湾底巷45号列异'
+    dir = 'D:\\娄桥市监所\\照片\\20221028 青松眼镜厂'
     for img in glob.glob(dir + '\\*.heic'):
         # 获取文件名
         img_name = img.split('\\')[-1].split('.')[0]

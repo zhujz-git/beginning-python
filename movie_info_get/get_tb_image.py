@@ -436,6 +436,9 @@ def check_img_dir():
                 os.remove(fpath)
                 print('delete file:', fpath)
 
+    pat = re.compile('')
+    for tname in title_names:
+
     pd_item = pd.read_pickle('./pkl/item.pkl')
     for idx, data in pd_item.iterrows():
         title = data['title']
