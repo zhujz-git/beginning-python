@@ -509,52 +509,46 @@ def check_img_dir():
     # 遍历文件夹，删除没下载成功的图片
     df_item = pd.read_pickle('./pkl/item.pkl').reset_index().set_index('title')
     iter_dir = os.walk('./image/')
+    #根目录，./image文件夹
     root, title_names, filenames = iter_dir.__next__()
-    pat_title = re.compile(r'./image/(.*)-\d*-\d*')
+    #标题表达式
+    pat_title = re.compile(r'./image/(.*)-.*-.*')
+    #详情页表达式
     pat_detail = re.compile(r'详情(\d+).jpg')
-    for dir_name, nouse, filenames in iter_dir:
-        
-        bool b_finish = True
-
+    
+    for dir_name, nouse, filenames in iter_dir:        
+        b_finish = True
         # 找到最大的详情页
         get_num = lambda x: int(pat_detail.match(x).group(1)) if pat_detail.match(x) else 0
         max_file = max(filenames,
                        key=get_num)
         max_num = get_num(max_file)
+        #详情页没下载
         if max_num == 0:
             b_finish = False
 
         for fname in filenames:
-            fpath = os.path.join(root, fname)
+            fpath = os.path.join(dir_name, fname)
             fsize = os.path.getsize(fpath)
             if fsize < 100:
+                #将最大详情页+1 后续好处理
                 if fname == max_file:
                     dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
-                    os.rename(fpath, dst)
+                    #os.rename(fpath, dst)
                 else:                                    
-                    os.remove(fpath)
-                    print('delete file:', fpath)
+                    #os.remove(fpath)
+                    print('small file:', fpath)
                 b_finish = False
         match = pat_title.match(dir_name)
         title = match.group(1)
-        df_item.loc[title][flag] = b_finish
+        df_item.at[title, 'flag'] = b_finish
 
-
-    pat = re.compile(r'详情(\d+).jpg')
-
-    for tname in title_names:
-
-        if match:
-            title = match.group(1)
-            item = df_item.loc[title]
-
-    for idx, data in pd_item.iterrows():
-        title = data['title']
 
 
 if __name__ == '__main__':
-    browser = get_item_browser()
-    get_item_list(browser)
+    check_img_dir()
+    #browser = get_item_browser()
+    #get_item_list(browser)
     #pd_item = pd.read_pickle('./pkl/item.pkl')
 # for i in range(0,26):
 #     down_page_item_img(browser, i)
