@@ -13,200 +13,277 @@ import pandas as pd
 
 
 def get_item_browser():
-    cookies = [
-        {'domain': '.tmall.com',
-         'expiry': 1682497469,
-         'httpOnly': False,
-         'name': 'tfstk',
-         'path': '/',
-         'secure': False,
-         'value': 'ct4PBgv1FaQycIPdBq0U7go0elpRZkz3zEkrq92NmaUwi2oliApKiUzogxR2K0f..'},
-        {'domain': 'papa.tmall.com',
-         'expiry': 1698481471,
-         'httpOnly': False,
-         'name': 'cq',
-         'path': '/',
-         'secure': False,
-         'value': 'ccp%3D0'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'uc1',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'cookie15=VT5L2FSpMGV7TQ%3D%3D&cookie21=U%2BGCWk%2F7ow08GIhZA1V8cQ%3D%3D&cookie16=VFC%2FuZ9az08KUQ56dCrZDlbNdA%3D%3D&pas=0&cookie14=UoeyCG%2B%2Fw9MSNQ%3D%3D&existShop=true'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'cancelledSubSites',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'empty'},
-        {'domain': 'papa.tmall.com',
-            'expiry': 1669537468,
-            'httpOnly': False,
-            'name': 'pnm_cku822',
-            'path': '/',
-            'secure': False,
-            'value': ''},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'uc4',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'nk4=0%40GIsuUD0zoBas8xPVPxljQ9PPdg%3D%3D&id4=0%40UO2hZtlDwmC1EgFm6P2FjTPXFq8%3D'},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'sgcookie',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'E100d3Mg8nPU1KRh3uKItMnNYcB2njRaPgsNA4vz2%2FsNhqfYOlC%2Buqc3UIdMMg1E0KjThJaNoIBDdJADfdCUuDzhhYm6nSgghhxLYpl14Hxm%2Fmcb7FVLIR%2F7ACK9sZH%2FPcrr'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'tracknick',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'ylucky64'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': '_nk_',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'ylucky64'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'sg',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '48a'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': '_tb_token_',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '3473a5f3eb33'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'csg',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'c9d51ddc'},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'cookie2',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '95b95488d315f4a174cd5ee082de34e5'},
-        {'domain': '.tmall.com',
-            'expiry': 1667031655,
-            'httpOnly': False,
-            'name': 'xlly_s',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '1'},
-        {'domain': '.tmall.com',
-            'expiry': 1682497469,
-            'httpOnly': False,
-            'name': 'isg',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'BOvrtFGDDGn4gFC93X6m-Zp5eg_VAP-Cye7IVF1o4SqB_Ate5dXv0W5WUj2SXFd6'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'unb',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '141973468'},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'uc3',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'id2=UoW2%2BqtUqtky&lg2=W5iHLLyFOGW7aA%3D%3D&vt3=F8dCv4oYssgWuxlaGxg%3D&nk2=Ggc99bDLhrQ%3D'},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'cookie17',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'UoW2%2BqtUqtky'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': '_l_g_',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'Ug%3D%3D'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 't',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '2242100bcfa08de93eaa5384eb6dc682'},
-        {'domain': '.tmall.com',
-            'expiry': 1698510268,
-            'httpOnly': False,
-            'name': 'lid',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'ylucky64'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'login',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'true'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'dnk',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'ylucky64'},
-        {'domain': '.tmall.com',
-            'expiry': 1682497469,
-            'httpOnly': False,
-            'name': 'l',
-            'path': '/',
-            'secure': False,
-            'value': 'eBPqYQqRTuZ-EDvSBOfwhurza77tdIRAguPzaNbMiOCP9TCw5WD5W6yM_5TeCnGchsZeR3AIrDUWBeYBqCDXrVms9qWT9WHmn'},
-        {'domain': '.tmall.com',
-            'httpOnly': False,
-            'name': 'lgc',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'ylucky64'},
-        {'domain': '.tmall.com',
-            'httpOnly': True,
-            'name': 'cookie1',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': 'W8HY4jZX0v8S6Y1LD1t%2FyYGF%2BgdPhVUTvA0PHjXmT4o%3D'},
-        {'domain': '.tmall.com',
-            'expiry': 1701505254,
-            'httpOnly': False,
-            'name': 'cna',
-            'path': '/',
-            'sameSite': 'None',
-            'secure': True,
-            'value': '7X7iG6hBfkUCAX1u4JD8ZSdn'}]
+    cookies = [{
+        'domain':
+        '.tmall.com',
+        'expiry':
+        1682497469,
+        'httpOnly':
+        False,
+        'name':
+        'tfstk',
+        'path':
+        '/',
+        'secure':
+        False,
+        'value':
+        'ct4PBgv1FaQycIPdBq0U7go0elpRZkz3zEkrq92NmaUwi2oliApKiUzogxR2K0f..'
+    }, {
+        'domain': 'papa.tmall.com',
+        'expiry': 1698481471,
+        'httpOnly': False,
+        'name': 'cq',
+        'path': '/',
+        'secure': False,
+        'value': 'ccp%3D0'
+    }, {
+        'domain':
+        '.tmall.com',
+        'httpOnly':
+        False,
+        'name':
+        'uc1',
+        'path':
+        '/',
+        'sameSite':
+        'None',
+        'secure':
+        True,
+        'value':
+        'cookie15=VT5L2FSpMGV7TQ%3D%3D&cookie21=U%2BGCWk%2F7ow08GIhZA1V8cQ%3D%3D&cookie16=VFC%2FuZ9az08KUQ56dCrZDlbNdA%3D%3D&pas=0&cookie14=UoeyCG%2B%2Fw9MSNQ%3D%3D&existShop=true'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'cancelledSubSites',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'empty'
+    }, {
+        'domain': 'papa.tmall.com',
+        'expiry': 1669537468,
+        'httpOnly': False,
+        'name': 'pnm_cku822',
+        'path': '/',
+        'secure': False,
+        'value': ''
+    }, {
+        'domain':
+        '.tmall.com',
+        'httpOnly':
+        True,
+        'name':
+        'uc4',
+        'path':
+        '/',
+        'sameSite':
+        'None',
+        'secure':
+        True,
+        'value':
+        'nk4=0%40GIsuUD0zoBas8xPVPxljQ9PPdg%3D%3D&id4=0%40UO2hZtlDwmC1EgFm6P2FjTPXFq8%3D'
+    }, {
+        'domain':
+        '.tmall.com',
+        'httpOnly':
+        True,
+        'name':
+        'sgcookie',
+        'path':
+        '/',
+        'sameSite':
+        'None',
+        'secure':
+        True,
+        'value':
+        'E100d3Mg8nPU1KRh3uKItMnNYcB2njRaPgsNA4vz2%2FsNhqfYOlC%2Buqc3UIdMMg1E0KjThJaNoIBDdJADfdCUuDzhhYm6nSgghhxLYpl14Hxm%2Fmcb7FVLIR%2F7ACK9sZH%2FPcrr'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'tracknick',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'ylucky64'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': '_nk_',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'ylucky64'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'sg',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '48a'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': '_tb_token_',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '3473a5f3eb33'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'csg',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'c9d51ddc'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': True,
+        'name': 'cookie2',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '95b95488d315f4a174cd5ee082de34e5'
+    }, {
+        'domain': '.tmall.com',
+        'expiry': 1667031655,
+        'httpOnly': False,
+        'name': 'xlly_s',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '1'
+    }, {
+        'domain':
+        '.tmall.com',
+        'expiry':
+        1682497469,
+        'httpOnly':
+        False,
+        'name':
+        'isg',
+        'path':
+        '/',
+        'sameSite':
+        'None',
+        'secure':
+        True,
+        'value':
+        'BOvrtFGDDGn4gFC93X6m-Zp5eg_VAP-Cye7IVF1o4SqB_Ate5dXv0W5WUj2SXFd6'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'unb',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '141973468'
+    }, {
+        'domain':
+        '.tmall.com',
+        'httpOnly':
+        True,
+        'name':
+        'uc3',
+        'path':
+        '/',
+        'sameSite':
+        'None',
+        'secure':
+        True,
+        'value':
+        'id2=UoW2%2BqtUqtky&lg2=W5iHLLyFOGW7aA%3D%3D&vt3=F8dCv4oYssgWuxlaGxg%3D&nk2=Ggc99bDLhrQ%3D'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': True,
+        'name': 'cookie17',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'UoW2%2BqtUqtky'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': '_l_g_',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'Ug%3D%3D'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 't',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '2242100bcfa08de93eaa5384eb6dc682'
+    }, {
+        'domain': '.tmall.com',
+        'expiry': 1698510268,
+        'httpOnly': False,
+        'name': 'lid',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'ylucky64'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'login',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'true'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'dnk',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'ylucky64'
+    }, {
+        'domain':
+        '.tmall.com',
+        'expiry':
+        1682497469,
+        'httpOnly':
+        False,
+        'name':
+        'l',
+        'path':
+        '/',
+        'secure':
+        False,
+        'value':
+        'eBPqYQqRTuZ-EDvSBOfwhurza77tdIRAguPzaNbMiOCP9TCw5WD5W6yM_5TeCnGchsZeR3AIrDUWBeYBqCDXrVms9qWT9WHmn'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': False,
+        'name': 'lgc',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'ylucky64'
+    }, {
+        'domain': '.tmall.com',
+        'httpOnly': True,
+        'name': 'cookie1',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': 'W8HY4jZX0v8S6Y1LD1t%2FyYGF%2BgdPhVUTvA0PHjXmT4o%3D'
+    }, {
+        'domain': '.tmall.com',
+        'expiry': 1701505254,
+        'httpOnly': False,
+        'name': 'cna',
+        'path': '/',
+        'sameSite': 'None',
+        'secure': True,
+        'value': '7X7iG6hBfkUCAX1u4JD8ZSdn'
+    }]
     # https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
     # https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
     browser = webdriver.Edge(executable_path='msedgedriver.exe')
@@ -245,7 +322,7 @@ def get_html_response(url):
 
 def down_web_image(url, root, filename):
     try:
-        if url[:6] != 'https:' :
+        if url[:6] != 'https:':
             url = 'https:' + url
         path = root + filename
         if not os.path.exists(root):
@@ -262,6 +339,7 @@ def down_web_image(url, root, filename):
             return path
     except Exception as e:
         print('爬取失败', e)
+
 
 #下载页面中的所有宝贝图片
 def down_page_item_img(browser, page_no):
@@ -290,14 +368,15 @@ def down_page_item_img(browser, page_no):
             continue
         url_list.append(item.a['href'])
 
-
     for n, url in enumerate(url_list, start=1):
         print('开始下载第{}个宝贝，总数：{}'.format(n, len(url_list)))
         down_item_img(browser, url, img_root, restored_item_list)
 
+
 # 遍历已经下载的文件夹
 def get_restored_item(dir):
     return list(os.walk(dir))[0][1]
+
 
 def is_restored(ilist, item):
     for i in ilist:
@@ -305,9 +384,10 @@ def is_restored(ilist, item):
             return True
     return False
 
+
 # 单独下载一个页面
 def down_item_img(browser, url, img_root, restored_item_list):
-    if url[:6] != 'https:' :
+    if url[:6] != 'https:':
         url = 'https:' + url
     # 打开网页后拉倒最底下
     browser.get(url)
@@ -325,7 +405,6 @@ def down_item_img(browser, url, img_root, restored_item_list):
         print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
         return
 
-
     for i in range(30):
         browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
         sleep(1)
@@ -334,25 +413,25 @@ def down_item_img(browser, url, img_root, restored_item_list):
     html = browser.page_source
     bs = BeautifulSoup(html, 'html.parser')
     try:
-        origin_price = bs.find(class_=re.compile(
-            'Price--originPrice')).find(class_=re.compile('Price--priceText')).string
+        origin_price = bs.find(class_=re.compile('Price--originPrice')).find(
+            class_=re.compile('Price--priceText')).string
     except AttributeError:
         origin_price = ''
 
     try:
-        extra_price = bs.find(class_=re.compile(
-            'Price--extraPrice')).find(class_=re.compile('Price--priceText')).string
+        extra_price = bs.find(class_=re.compile('Price--extraPrice')).find(
+            class_=re.compile('Price--priceText')).string
     except AttributeError:
         extra_price = origin_price
-    dir_name = main_title + '-'  + origin_price + '-' + extra_price + '/'
+    dir_name = main_title + '-' + origin_price + '-' + extra_price + '/'
     item_dir = img_root + dir_name
 
     #主图
-    main_pics = bs.find(class_=re.compile(
-        'PicGallery--thumbnails')).find_all('li')
+    main_pics = bs.find(
+        class_=re.compile('PicGallery--thumbnails')).find_all('li')
     for n, main_pic in enumerate(main_pics, 1):
         img_src = main_pic.img['src']
-        img_url = img_src.partition('jpg')[0]+'jpg'
+        img_url = img_src.partition('jpg')[0] + 'jpg'
         down_web_image(img_url, item_dir, '主图{}.jpg'.format(n))
 
     #向上翻10次 尽量显示全
@@ -379,7 +458,7 @@ def down_item_img(browser, url, img_root, restored_item_list):
             img_url = image['src']
             if img_url.find('getAvatar=avatar') > 0:
                 continue
-            if img_url[-4:]== '.gif':
+            if img_url[-4:] == '.gif':
                 continue
             down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
             n += 1
@@ -392,6 +471,7 @@ def down_item_img(browser, url, img_root, restored_item_list):
             continue
         down_web_image(img_url, item_dir, '详情{}.jpg'.format(n))
         n += 1
+
 
 def get_item_list(browser):
     pd_item = pd.DataFrame(columns=['id', 'url', 'title', 'flag'])
@@ -424,24 +504,53 @@ def get_item_list(browser):
             }
     pd_item.to_pickle('./pkl/item.pkl')
 
+
 def check_img_dir():
     # 遍历文件夹，删除没下载成功的图片
+    df_item = pd.read_pickle('./pkl/item.pkl').reset_index().set_index('title')
     iter_dir = os.walk('./image/')
     root, title_names, filenames = iter_dir.__next__()
-    for root, dir_names, filenames in iter_dir:
+    pat_title = re.compile(r'./image/(.*)-\d*-\d*')
+    pat_detail = re.compile(r'详情(\d+).jpg')
+    for dir_name, nouse, filenames in iter_dir:
+        
+        bool b_finish = True
+
+        # 找到最大的详情页
+        get_num = lambda x: int(pat_detail.match(x).group(1)) if pat_detail.match(x) else 0
+        max_file = max(filenames,
+                       key=get_num)
+        max_num = get_num(max_file)
+        if max_num == 0:
+            b_finish = False
+
         for fname in filenames:
             fpath = os.path.join(root, fname)
             fsize = os.path.getsize(fpath)
             if fsize < 100:
-                os.remove(fpath)
-                print('delete file:', fpath)
+                if fname == max_file:
+                    dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
+                    os.rename(fpath, dst)
+                else:                                    
+                    os.remove(fpath)
+                    print('delete file:', fpath)
+                b_finish = False
+        match = pat_title.match(dir_name)
+        title = match.group(1)
+        df_item.loc[title][flag] = b_finish
 
-    pat = re.compile('')
+
+    pat = re.compile(r'详情(\d+).jpg')
+
     for tname in title_names:
 
-    pd_item = pd.read_pickle('./pkl/item.pkl')
+        if match:
+            title = match.group(1)
+            item = df_item.loc[title]
+
     for idx, data in pd_item.iterrows():
         title = data['title']
+
 
 if __name__ == '__main__':
     browser = get_item_browser()
