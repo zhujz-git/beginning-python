@@ -535,12 +535,14 @@ def check_img_dir():
                 if fname == max_file:
                     dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
                     #os.rename(fpath, dst)
-                else:                                    
+                else:                      
+                    pass              
                     #os.remove(fpath)
-                    print('small file:', fpath)
+                    #print('small file:', fpath)
                 b_finish = False
         match = pat_title.match(dir_name)
         title = match.group(1)
+        print(df_item.at[title].shape[0])
         df_item.at[title, 'flag'] = b_finish
 
 
