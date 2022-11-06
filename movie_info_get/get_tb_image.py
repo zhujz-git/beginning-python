@@ -515,8 +515,8 @@ def check_img_dir():
     pat_title = re.compile(r'./image/(.*)-.*-.*')
     #详情页表达式
     pat_detail = re.compile(r'详情(\d+).jpg')
-    
-    for dir_name, nouse, filenames in iter_dir:        
+
+    for dir_name, nouse, filenames in iter_dir:
         b_finish = True
         # 找到最大的详情页
         get_num = lambda x: int(pat_detail.match(x).group(1)) if pat_detail.match(x) else 0
@@ -535,16 +535,16 @@ def check_img_dir():
                 if fname == max_file:
                     dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
                     #os.rename(fpath, dst)
-                else:                      
-                    pass              
+                else:
+                    pass
                     #os.remove(fpath)
                     #print('small file:', fpath)
                 b_finish = False
         match = pat_title.match(dir_name)
         title = match.group(1)
-        print(df_item.at[title].shape[0])
+        if len(df_item.loc[title].shape) > 1:
+            print(title + '重复了')        
         df_item.at[title, 'flag'] = b_finish
-
 
 
 if __name__ == '__main__':
