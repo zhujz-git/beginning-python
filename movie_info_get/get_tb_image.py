@@ -13,7 +13,7 @@ import pandas as pd
 
 
 def get_item_browser():
-    cookies = [{
+    y_cookies = [{
         'domain':
         '.tmall.com',
         'expiry':
@@ -286,11 +286,12 @@ def get_item_browser():
     }]
     # https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
     # https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
+    # https://curlconverter.com/
     browser = webdriver.Edge(executable_path='msedgedriver.exe')
     browser.maximize_window()
     browser.get('https://papa.tmall.com')
 
-    for item in cookies:
+    for item in y_cookies:
         browser.add_cookie(item)
 
     return browser
@@ -519,9 +520,9 @@ def check_img_dir():
     for dir_name, nouse, filenames in iter_dir:
         b_finish = True
         # 找到最大的详情页
-        get_num = lambda x: int(pat_detail.match(x).group(1)) if pat_detail.match(x) else 0
-        max_file = max(filenames,
-                       key=get_num)
+        get_num = lambda x: int(pat_detail.match(x).group(1)
+                                ) if pat_detail.match(x) else 0
+        max_file = max(filenames, key=get_num)
         max_num = get_num(max_file)
         #详情页没下载
         if max_num == 0:
@@ -533,7 +534,7 @@ def check_img_dir():
             if fsize < 100:
                 #将最大详情页+1 后续好处理
                 if fname == max_file:
-                    dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
+                    dst = os.path.join(root, '详情{}.jpg'.format(max_num + 1))
                     #os.rename(fpath, dst)
                 else:
                     pass
@@ -543,8 +544,10 @@ def check_img_dir():
         match = pat_title.match(dir_name)
         title = match.group(1)
         if len(df_item.loc[title].shape) > 1:
-            print(title + '重复了')        
+            print(title + '重复了')
         df_item.at[title, 'flag'] = b_finish
+
+
 
 
 if __name__ == '__main__':
