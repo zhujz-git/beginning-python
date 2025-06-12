@@ -13,7 +13,7 @@ import pandas as pd
 
 
 def get_item_browser():
-    cookies = [{
+    y_cookies = [{
         'domain':
         '.tmall.com',
         'expiry':
@@ -286,11 +286,12 @@ def get_item_browser():
     }]
     # https://python3webspider.cuiqingcai.com/7.4-shi-yong-selenium-pa-qu-tao-bao-shang-pin
     # https://selenium-python.readthedocs.io/api.html#module-selenium.common.exceptions
+    # https://curlconverter.com/
     browser = webdriver.Edge(executable_path='msedgedriver.exe')
     browser.maximize_window()
     browser.get('https://papa.tmall.com')
 
-    for item in cookies:
+    for item in y_cookies:
         browser.add_cookie(item)
 
     return browser
@@ -386,7 +387,7 @@ def is_restored(ilist, item):
 
 
 # 单独下载一个页面
-def down_item_img(browser, url, img_root, restored_item_list):
+def down_item_img(browser, url, img_root, restored_item_list=None):
     if url[:6] != 'https:':
         url = 'https:' + url
     # 打开网页后拉倒最底下
@@ -400,10 +401,11 @@ def down_item_img(browser, url, img_root, restored_item_list):
     except AttributeError:
         # 标题错误就跳过
         return
+
     # 判断是否已经下载了
-    if is_restored(restored_item_list, main_title):
-        print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
-        return
+    #if is_restored(restored_item_list, main_title):
+    #    print(main_title + '已经下载过，跳过，要重新下载请删除文件夹')
+    #    return
 
     for i in range(30):
         browser.find_element(By.TAG_NAME, 'body').send_keys(Keys.PAGE_DOWN)
@@ -519,9 +521,9 @@ def check_img_dir():
     for dir_name, nouse, filenames in iter_dir:
         b_finish = True
         # 找到最大的详情页
-        get_num = lambda x: int(pat_detail.match(x).group(1)) if pat_detail.match(x) else 0
-        max_file = max(filenames,
-                       key=get_num)
+        get_num = lambda x: int(pat_detail.match(x).group(1)
+                                ) if pat_detail.match(x) else 0
+        max_file = max(filenames, key=get_num)
         max_num = get_num(max_file)
         #详情页没下载
         if max_num == 0:
@@ -532,25 +534,37 @@ def check_img_dir():
             fsize = os.path.getsize(fpath)
             if fsize < 100:
                 #将最大详情页+1 后续好处理
-                if fname == max_file:
-                    dst = os.path.join(root, '详情{}.jpg'.format(max_num+1))
-                    #os.rename(fpath, dst)
-                else:
-                    pass
-                    #os.remove(fpath)
-                    #print('small file:', fpath)
+                #if fname == max_file:
+                #    dst = os.path.join(root, '详情{}.jpg'.format(max_num + 1))
+                #    os.rename(fpath, dst)
+                #else:                    
+                os.remove(fpath)
+                print('small file:', fpath)
                 b_finish = False
         match = pat_title.match(dir_name)
         title = match.group(1)
-        if len(df_item.loc[title].shape) > 1:
-            print(title + '重复了')        
-        df_item.at[title, 'flag'] = b_finish
+        try:
+            if len(df_item.loc[title].shape) > 1:
+                print(title + ': 重复了')
+            df_item.at[title, 'flag'] = b_finish
+        except KeyError as e:
+            print('KeyError:', e)
+    return df_item
+
+
 
 
 if __name__ == '__main__':
-    check_img_dir()
-    #browser = get_item_browser()
+    #check_img_dir()
+    browser = get_item_browser()
     #get_item_list(browser)
     #pd_item = pd.read_pickle('./pkl/item.pkl')
+    img_root = './image/'
+
+    pd_item = check_img_dir()
+    for index, row in pd_item.iterrows():
+        if not row['flag']:
+            down_item_img(browser, row['url'], img_root)
+
 # for i in range(0,26):
 #     down_page_item_img(browser, i)
