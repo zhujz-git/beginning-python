@@ -19,3 +19,4 @@ __pycache__
 *.log
 *.pkl
 .ipynb_checkpoints/
+*.dt
