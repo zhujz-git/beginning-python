@@ -102,11 +102,11 @@ def write_data_to_excel(filepath, comb_data, goods_data):
             load_sheet['{}{}'.format('F', line_num)].value = str_sellingprice
             for goodsid in comb[2]:
                 # <必填>子商品编码
-                load_sheet['{}{}'.format('R', line_num)].value = goodsid
+                load_sheet['{}{}'.format('H', line_num)].value = goodsid
                 load_sheet['{}{}'.format(
-                    'S', line_num)].value = goods_data.get(goodsid)
+                    'I', line_num)].value = goods_data.get(goodsid)
                 # <必填>子商品数量
-                load_sheet['{}{}'.format('T', line_num)].value = 1
+                load_sheet['{}{}'.format('J', line_num)].value = 1
 
                 line_num += 1
         # 保存文件
