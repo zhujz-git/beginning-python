@@ -26,8 +26,10 @@ def lead_comb_info(filepath):
 def check_comb_info(filepath, df_comb):
     try:
         # 默认查询关键字列在第一列
-        df_dest = pd.read_excel(filepath, index_col=0)
+        df_dest = pd.read_excel(filepath, index_col=0, usecols=['组合商品编码', '组合商品名称'])
         # append 2次 可以达到df_update = df_comb - df_dest的差集
+        
+        #20241217 append方法有问题，换一个方法试试
         df_update = df_comb.append(df_dest).append(df_dest)
         df_update.reset_index(inplace=True)
         df_update.drop_duplicates(subset=['组合商品编码'], keep=False, inplace=True)
@@ -58,10 +60,12 @@ def check_comb_info(filepath, df_comb):
     app.quit()
 
 
-filepath = './pydata/september/'
-filelist = filepath + '/combination_info1.xlsx'
+filepath = './pydata/may/'
+filelist = filepath + 'combination_info1.xlsx'
 df_comb = pd.read_excel(filelist, usecols=['组合商品编码', '组合商品名称'])
 df_comb.dropna(inplace=True)
+df_comb.drop_duplicates(inplace=True)
 df_comb.set_index('组合商品编码', inplace=True)
 
-check_comb_info(filepath + '\\combination_weight.xlsx', df_comb)
+
+check_comb_info(filepath + 'combination_weight.xlsx', df_comb)

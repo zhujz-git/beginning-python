@@ -40,7 +40,7 @@ def read_orders(filepath):
     first_row = sheet1.row_values(0)
     try:
         tracking_number_id = first_row.index('快递单号')
-        order_comment_id = first_row.index('备注')
+        order_comment_id = first_row.index('线上备注')
         product_count_id = first_row.index('数量')
         product_code_id = first_row.index('商品编码')
     except ValueError:
@@ -168,4 +168,4 @@ product_codes = read_product(filepath + '\\combination_weight.xlsx')
 # 读取订单数据
 order_list = read_orders(filepath + '\\order_list.xlsx')
 # 核对
-verify_weight(filepath + '\\居家族  9月 - 副本.xls', product_codes, order_list)
+verify_weight(filepath + '\\居家族   5月 - 副本.xls', product_codes, order_list)
